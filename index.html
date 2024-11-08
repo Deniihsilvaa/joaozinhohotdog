@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="title" content="Gestão de Financeira" />
+    <meta name="description" content="Sistema de gestão financeira" />
+    <meta name="author" content="Denilson Silva" />
+    <meta name="keywords" content="gestao, financas, financeiro" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/scroller/2.4.3/css/scroller.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lafeber/world-flags-sprite/stylesheets/flags32-both.css" />
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- JSZip (necessário para exportação de arquivos Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- pdfMake (necessário para exportação de arquivos PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/scroller/2.4.3/js/scroller.dataTables.min.js"></script>
+
+    <!-- Botões de exportação do DataTables -->
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js"></script>
+</head>
+
+<body>
+    <div id="idIniti"></div>
+
+    <template id="template_login">
+        <div class="card">
+            <div class="login-body">
+                <h5 class="login-head">Login</h5>
+                <form id="form_login">
+                    <div class="mb-3 mt-3 jus">
+                        <label for="login_Login" class="form-label">Login</label>
+                        <input type="text" class="form-control Flog" id="login_Login" onchange="verificarD(this)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_Login" class="form-label">Senha</label>
+                        <input type="password" class="form-control Flog" id="password_Login"
+                            onchange="verificarD(this)" />
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" onclick="controlAuntentication()" id="submitLogin"
+                            class="btn btn-primary">
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script>
+            function verificarD(input) {
+                const inputErr = document.getElementById(input.id);
+                const btt = document.getElementById("submitLogin");
+                if (!inputErr.value) {
+                    input.classList.add("input-error");
+                    btt.setAttribute("disabled", "disabled");
+
+                    return mostrarAlerta("Preecha todos os campos", 2);
+                } else {
+                    input.classList.remove("input-error");
+                    btt.removeAttribute("disabled");
+                }
+            }
+            function controlAuntentication() {
+                const formularioLogin = document.getElementById("form_login");
+                const dadosLogar = {
+                    login_Login: formularioLogin[0].value,
+                    password_Login: formularioLogin[1].value,
+                };
+                if (!login_Login || password_Login == "") {
+                    mostrarAlerta("Preencha todos os campos!", 2);
+                }
+                localStorage.setItem("UserGroup", JSON.stringify(dadosLogar));
+                verificarCredenciais();
+            }
+            function verificarCredenciais() {
+                const credenciais = JSON.parse(localStorage.getItem("UserGroup"));
+                if (credenciais) {
+                    const verificarCredenciais = carregarAjax(
+                        "verificarCredenciais",
+                        JSON.stringify(credenciais)
+                    );
+                    verificarCredenciais
+                        .then((response) => {
+                            if (response.situacao) {
+                                mostrarAlerta("Login efetuado com sucesso!", 1);
+                                template_init();
+                                localStorage.setItem(
+                                    "UserGroup",
+                                    JSON.stringify({
+                                        ...credenciais,
+                                        nivel: response.dados.nivel,
+                                    })
+                                );
+                            } else {
+                                mostrarAlerta("Credenciais inválidas!", 2);
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                        });
+                }
+            }
+        </script>
+    </template>
+    <template id="template_home">
+        <div class="container-xxl">
+            <div class="row p-sm-2 my-5 gap-3">
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina(this.id)">
+                    <span class="spanHome">Despesas</span>
+                </div>
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info"
+                    onclick="carregarPagina('template_faturamento')">
+                    <span class="spanHome">Faturamento</span>
+                </div>
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina('template_caixa')">
+                    <span class="spanHome">Caixa</span>
+                </div>
+            </div>
+        </div>
+        <div id="modalCaixa"></div>
+    </template>
+    <template id="template_caixa">
+        <div class="container-fluid">
+            <div class="row shadow gap-1">
+                <p></p>
+                <div class="col shadow text-bg-success mb-3">
+                    <div class="cardDados">
+                        <span class="placeholder" id="spanEntrada"></span>
+                    </div>
+                </div>
+                <div class="col shadow text-bg-danger mb-3">
+                    <div class="cardDados">
+                        <span class="placeholder" id="spanSaida"></span>
+
+                    </div>
+                </div>
+                <div class="col shadow ">
+                    <div class="cardDados">
+                        <span class="placeholder" id="spanTotal"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="card shadow p-2">
+                    <div class="row g-3">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="dataIniciofmrCaixa">Data Início</label>
+                                <input type="date" id="dataIniciofmrCaixa" />
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="dataIniciofmrCaixa">Data Fim</label>
+                                <input type="date" id="dataFimfmrCaixa" />
+                            </div>
+                        </div>
+                        <div class="col">
+                            <button type="button" id="btnCarregarCaixa" onclick="carregardadosCaixa(this.id)" class="btn btn-primary mt-2">
+                                Carregar Dados
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <table class="table table-responsive table-hover mt-3" id="tableCaixa">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Descrição</th>
+                                <th scope="col">Valor</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Situacão</th>
+                                <th scope="col">Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Os dados da tabela serão preenchidos aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template id="template_faturamento">
+        <div class="container-xxl">
+            <div class="row p-sm-2 my-5 gap-3">
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" id="templateFaturamento"
+                    onclick="carregarPagina(this.id)">
+                    <span class="spanHome">Faturamento</span>
+                </div>
+            </div>
+        </div>
+    </template>
+    <!-- Spinner Overlay -->
+    <div id="spinner-overlay" class="spinner-overlay d-none">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <!-- Alerta -->
+    <div id="liveAlertPlaceholder"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <script id="MetodoPost">
+        let urlAjax =
+            "https://script.google.com/macros/s/AKfycbxLPOwcdZ0cnnvzlBct0bJhJOKZTkfM-AI5avuer6tNs4TosQHy3DUU4roRD0Z934sY/exec";
+
+        $("#accordion").accordion({
+            active: false,
+            collapsible: true,
+            heightStyle: "content",
+            icons: {
+                header: "ui-icon-circle-plus", // Ícone para cabeçalhos fechados
+                activeHeader: "ui-icon-circle-minus", // Ícone para cabeçalhos abertos
+            },
+        });
+
+        function atualizarBreadcrumb(pagina) {
+            const breadcrumbPage = document.getElementById("breadcrumbPage");
+            breadcrumbPage.textContent =
+                pagina.charAt(0).toUpperCase() + pagina.slice(1);
+        }
+        // funcao de teste
+        // Torna a função assíncrona
+        async function carregarPagina(pagina) {
+            try {
+                let dadosLocal = localStorage.getItem("UserGroup");
+                // Verifica se o usuário está autenticado
+                if (dadosLocal) {
+                    const userGroup = JSON.parse(dadosLocal); // Supondo que você armazene um objeto JSON
+                    if (userGroup && userGroup.login_Login) {
+                        // Se o ID do cliente existir, redireciona para a página home ou outra que não seja template_login
+                        if (pagina === "template_login") {
+                            template_init();
+
+
+                            return;
+                        }
+                    }
+                }
+
+                let destino = pagina === "template_login" ? "idIniti" : "conteudo";
+
+                if (pagina !== "template_login") {
+                    atualizarBreadcrumb(pagina);
+                }
+
+                // Espera até que o template seja inserido
+                const template = await inserirTemplate(pagina, destino);
+                console.log("Template carregado:", template);
+                esconderBarralateral();
+                // Agora, execute as outras ações após o template ser carregado
+                switch (pagina) {
+                    case "template_login":
+                        break;
+                    case "clientes":
+                        break;
+                    case "fornecedores":
+                        break;
+                    case "produtos":
+                        break;
+                    case "notas_entrada":
+                        break;
+                    case "notas_saida":
+                        break;
+                    case "documentos_nfe":
+                        break;
+                    case "template_home":
+                        break;
+                    case "request_Nfe":
+                        request_Nfe();
+                        break;
+                    case "contas_a_pagar":
+                        // contas_a_pagar();
+                        break;
+                    case "template_caixa":
+                        carregarTemplateCaixa();
+                        break;
+                    default:
+                        document.getElementById("conteudo").innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
+                        break;
+                }
+            } catch (error) {
+                document.getElementById("conteudo").innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
+                console.error("Error:", error);
+            }
+        }
+        const removerClasseElemnto = (elemento, classe) => {
+            return elemento.classList.remove(classe);
+
+        }
+        const adicionarClasseElemento = (elemento, classe) => {
+            return elemento.classList.add(classe);
+        }
+        // Torna inserirTemplate assíncrona, se ainda não for
+        async function inserirTemplate(templateId, destino) {
+
+            try {
+                const formularioID = document.getElementById(templateId);
+                const paginanova = document.getElementById(destino);
+
+                // Cria um efeito de desvanecimento
+
+                removerClasseElemnto(paginanova, "show"); // Remove a classe de mostrar se já estiver visível
+                // adiciona a classe de desvanecimento se não estiver visível
+                adicionarClasseElemento(paginanova, "fade"); // Adiciona a classe de desvanecimento
+
+                // Aguarda a animação de desvanecimento terminar
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        paginanova.innerHTML = ""; // Limpa o conteúdo existente
+                        const clone = document.importNode(formularioID.content, true);
+                        paginanova.appendChild(clone);
+                        paginanova.classList.add("show"); // Adiciona a classe para mostrar após inserir o novo conteúdo
+                        resolve(formularioID); // Resolve a promessa após inserir o conteúdo
+
+                    }, 500); // O tempo deve corresponder à duração da transição CSS
+                });
+            } catch (error) {
+                console.error("Erro ao inserir template:", error);
+                return null;
+            }
+        }
+
+        // fechamanto de teste
+        function esconderNavbarDropdown() {
+            const navbarNavDropdown = bootstrap.Collapse.getInstance(
+                document.getElementById("navbarNavDropdown")
+            );
+            if (navbarNavDropdown) {
+                navbarNavDropdown.hide();
+            }
+        }
+        function carregarAjax(qualFuncao, dados) {
+            mostrarSpinner();
+            return new Promise((resolve, reject) => {
+                // Variável para armazenar o tempo de início
+                const startTime = Date.now();
+
+                $.ajax({
+                    type: "POST",
+                    url: urlAjax,
+                    data: { qualFuncao: qualFuncao, dados: dados },
+                    dataType: "json",
+                    success: function (response) {
+
+                        console.log("Resposta:", response);
+
+                        // Calcula o tempo gasto na requisição
+                        const elapsedTime = Date.now() - startTime;
+                        const remainingTime = 1000 - elapsedTime; // Calcula o tempo restante para completar 1 segundo
+
+                        // Se o tempo restante for positivo, espera antes de resolver
+                        if (remainingTime > 0) {
+                            setTimeout(() => resolve(response), remainingTime);
+                        } else {
+                            resolve(response);
+                            esconderSpinner();
+
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Erro na requisição Ajax:", error);
+                        reject(error);
+                    },
+                    complete: function () {
+
+                    },
+                });
+            });
+        }
+
+    </script>
+    <script id="function aux">
+        // Função para mostrar o spinner
+        function mostrarSpinner() {
+            document.getElementById("spinner-overlay").classList.remove("d-none");
+        }
+
+        // Função para esconder o spinner
+        function esconderSpinner() {
+            document.getElementById("spinner-overlay").classList.add("d-none");
+        }
+        function mostrarBarralateral() {
+            const bar = document.getElementById("meunoLateral");
+            const conteudoLateral = document.getElementById("conteudoLateral");
+            bar.classList.remove("d-none");
+            bar.classList.add("d-block");
+            conteudoLateral.innerHTML = ``;
+        }
+        function esconderBarralateral() {
+            const bar = document.getElementById("meunoLateral");
+            const conteudoLateral = document.getElementById("conteudoLateral");
+            bar.classList.remove("d-block");
+            bar.classList.add("d-none");
+            conteudoLateral.innerHTML = ``;
+        }
+
+        function executarDropdown() {
+            const tabElms = document.querySelectorAll('a[data-bs-toggle="list"]');
+            tabElms.forEach((tabElm) => {
+                tabElm.addEventListener("shown.bs.tab", (event) => {
+                    event.target; // newly activated tab
+                    event.relatedTarget; // previous active tab
+                });
+            });
+        }
+        function mostrarAlerta(mensagem, tipo) {
+            const alertPlaceholder = document.getElementById(
+                "liveAlertPlaceholder"
+            );
+
+            // Criando o overlay do alerta
+            const alertOverlay = document.createElement("div");
+            alertOverlay.className = "alert-overlay";
+
+            switch (tipo) {
+                case 1:
+                    var classe = "alert alert-success";
+                    break;
+                case 2:
+                    var classe = "alert alert-danger";
+                    break;
+                case 3:
+                    var classe = "alert alert-warning";
+                    break;
+                default:
+                    var classe = "alert alert-info";
+                    break;
+            }
+
+            // Criando o conteúdo do alerta
+            const alertContent = `
+          <div class="${classe}">
+            <div class="header">
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="fecharAlerta()"> </button>
+            </div>
+            <div class="alert-text">
+              <p>${mensagem}</p>
+            </div>
+          </div>
+        `;
+
+            // Inserindo o conteúdo no overlay
+            alertOverlay.innerHTML = alertContent;
+
+            // Inserindo o alerta na página
+            alertPlaceholder.appendChild(alertOverlay);
+        }
+
+        function fecharAlerta() {
+            const alertPlaceholder = document.getElementById(
+                "liveAlertPlaceholder"
+            );
+            alertPlaceholder.innerHTML = ""; // Remove o alerta
+        }
+
+        function formatarParaReal(valor) {
+            return valor.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+            });
+        }
+    </script>
+    <script id="controlAuntentication">
+        function template_init() {
+            const app = document.getElementById("idIniti");
+
+            if (!app) {
+                console.error("Elemento 'idIniti' não encontrado");
+                return;
+            }
+
+            // Substitui o conteúdo da div com o HTML desejado
+            app.innerHTML = `
+        <div id="App">
+            <nav class="navbar navbar-expand-lg shadow">
+                <div class="container-fluid">
+                    <a class="navbar-brand text-white" href="#" onclick="carregarPagina('template_home')">Home</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav">
+                            <!-- Cadastro Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Cadastro
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('clientes')">Clientes</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('fornecedores')">Fornecedores</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('produtos')">Produtos</a></li>
+                                </ul>
+                            </li>
+                            <!-- Financeiro Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Financeiro
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_caixa')">Caixa</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_faturamento')">Faturamento</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('despesas')">Despesas</a></li>
+                                </ul>
+                            </li>
+                            <!-- Outros Dropdowns... -->
+                        </ul>
+                    </div>
+                    <a class="navbar-brand text-white" onclick="logout()" href="#">Sair</a>
+                    
+                </div>
+            </nav>
+            <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
+                <ol class="breadcrumb" id="breadcrumbNav">
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="carregarPagina('template_home')">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" id="breadcrumbPage"></li>
+                </ol>
+            </nav>
+            <div id="meunoLateral" class="d-none">
+                <span id="barMenu"> Menu</span>
+                <div id="conteudoLateral">
+                    //conteudo sera esibido aqui
+                </div>
+                
+            </div>
+            <!-- Conteúdo Principal -->
+            <div class="main">
+                    <div id="conteudo"></div>
+                </div>
+            </div>
+            <!-- Rodapé -->
+            <div class="footer">
+                <div class="logo">
+                    <img src="logo.png" alt="Logo" />
+                </div>
+                <div class="footer-text">
+                    <p>
+                        Desenvolvido por Denilson Silva - Sistema de gestão financeira © 2024 - Todos os direitos reservados
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+
+            // Exibir a div com a classe "App"
+            const appDiv = document.querySelector(".App");
+            if (appDiv) {
+                appDiv.style.display = "block";
+            }
+            carregarPagina("template_home");
+        }
+        function logout() {
+            if (confirm("Você realmente deseja sair?")) {
+                localStorage.removeItem("UserGroup");
+                mostrarAlerta("Logout realizado com sucesso!", 1);
+                carregarPagina("template_login");
+            }
+        }
+    </script>
+    <script id="template-caixa">
+        function barRight() {
+            try {
+                mostrarBarralateral();
+                const menu = document.getElementById("conteudoLateral");
+
+                //adicionar botoes
+                menu.innerHTML = `
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="d-grid gap-2">
+            <button type="button" class="btn btn-primary" onclick="carregarmodal(this.id)" id="modalReceita">Registros de Caixa</button>
+        </div>
+    </div>
+            `;
+            } catch (error) {
+                console.error("Erro ao carregar template caixa:", error);
+
+            }
+        }
+        function definirDatasIniciais() {
+            const hoje = new Date();
+            const primeiroDiaDoMes = new Date(
+                hoje.getFullYear(),
+                hoje.getMonth(),
+                1
+            );
+            const ultimoDiaDoMes = new Date(
+                hoje.getFullYear(),
+                hoje.getMonth() + 1,
+                0
+            );
+
+            const dataInicioInput = document.getElementById("dataIniciofmrCaixa");
+            const dataFimInput = document.getElementById("dataIniciofmrCaixa");
+
+            // Formata a data para o formato YYYY-MM-DD
+            dataInicioInput.value = primeiroDiaDoMes.toISOString().split("T")[0];
+            dataFimInput.value = ultimoDiaDoMes.toISOString().split("T")[0];
+        }
+
+        // Chama a função quando o template é inserido
+        function carregarTemplateCaixa() {
+            try {
+                carregardadosCaixa();
+                barRight();
+
+            } catch (error) {
+                console.error("Erro ao carregar template caixa:", error);
+            } finally {
+
+            }
+        }
+
+        // Esta função deve ser chamada após o template ser inserido
+        function carregardadosCaixa(filtrar) {
+            mostrarSpinner();
+            try {
+
+                // Verifica se os elementos existem antes de acessar .value
+                let dataInicioElement = document.getElementById("dataIniciofmrCaixa").value || null;
+                let dataFimElement = document.getElementById("dataFimfmrCaixa").value || null;
+
+                let dataInicio = dataInicioElement ? dataInicioElement : null;
+                let dataFim = dataFimElement ? dataFimElement : null;
+
+
+                const tableBody = document
+                    .getElementById("tableCaixa")
+                    .querySelector("tbody");
+                tableBody.innerHTML = ""; // Limpa a tabela antes de carregar novos dados
+
+                if (!dataInicio || !dataFim) {
+                    mostrarAlerta("Carregando dados Completos", 3);
+                    setTimeout(() => {
+                        fecharAlerta();
+                    }, 2000);
+                    esconderSpinner();
+                }else{
+                    mostrarAlerta(`Carregando filtros ${dataInicio} e ${dataFim}`, 3);
+                    setTimeout(() => {
+                        fecharAlerta();
+                    }, 2000);
+                    esconderSpinner();
+                }
+                console.log(JSON.stringify({ dataInicio, dataFim }))
+                // Chama a função para carregar os dados
+                const dadosCaixa = carregarAjax(
+                    "carregarCaixaDataFiltro",
+                    JSON.stringify({ dataInicio, dataFim })
+                );
+                dadosCaixa
+                    .then((response) => {
+                        console.log(response)
+                        if (response.situacao) {
+                            criartabelaCaixa(response.dados);
+                        } else {
+                            mostrarAlerta(
+                                "Não foram encontrados dados para as datas informadas.",
+                                2
+                            );
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        mostrarAlerta("Erro ao carregar dados!", 2);
+                    });
+
+
+            } catch (error) {
+                console.log("Erro ao carregar dados:", error);
+
+                esconderSpinner();
+            }
+        }
+
+        function criartabelaCaixa(dadosCaixa) {
+            const spanEntrada = document.getElementById("spanEntrada");
+            const spanSaida = document.getElementById("spanSaida");
+            const spanTotal = document.getElementById("spanTotal");
+
+            // Definindo as cores para cada situação
+            const cores = {
+                Pendente: "#ff5733", // Cor para situação "pendente"
+                Concluido: "#00ff00", // Cor para situação "concluído"
+                Cancelado: "#000000", // Cor para situação "cancelado"
+            };
+            let valorEntrada = 0;
+            let valorSaida = 0;
+            let total = 0;
+
+            // Adicionando a classe "table-active" para a tabela
+            const $tabela = $("#tableCaixa");
+            $tabela.addClass("table-active");
+
+            // Limpando o conteúdo anterior da tabela
+            $tabela.empty();
+
+            // Criando o cabeçalho da tabela
+            const $thead = $("<thead></thead>");
+            const $linhaCabecalho = $("<tr></tr>");
+            const cabecalhos = [
+                "id",
+                "descricao",
+                "valor",
+                "tipo",
+                "situacao",
+                "data",
+            ];
+
+            cabecalhos.forEach((cabecalho) => {
+                const $th = $("<th></th>").text(cabecalho);
+                $linhaCabecalho.append($th);
+            });
+            $thead.append($linhaCabecalho);
+            $tabela.append($thead);
+
+            // Criando o corpo da tabela
+            const $tbody = $("<tbody></tbody>");
+            dadosCaixa.forEach((item) => {
+                const $linha = $("<tr></tr>");
+
+                cabecalhos.forEach((coluna) => {
+                    const $celula = $("<td></td>").text(item[coluna]);
+
+                    // Se a coluna for "situacao", aplica a cor conforme o status
+                    if (coluna === "situacao" && cores[item[coluna]]) {
+                        $celula.css("background-color", cores[item[coluna]]);
+                        $celula.css("color", "#fff"); // Define a cor do texto como branca para melhor contraste
+                    }
+
+                    if (coluna == "valor") {
+                        $celula.text(formatarParaReal(item[coluna]));
+                    }
+                    if (coluna === "tipo") {
+
+                        // Acessando o valor da coluna "valor" diretamente
+                        if (item[coluna] === "Entrada") {
+                            valorEntrada += parseFloat(item.valor); // ou item[coluna] dependendo da estrutura do objeto
+                        } else if (item[coluna] === "Saída") {
+                            valorSaida += parseFloat(item.valor); // ou item[coluna]
+                        }
+                    }
+
+                    $linha.append($celula);
+                });
+
+                $tbody.append($linha);
+            });
+
+            $tabela.append($tbody);
+            spanEntrada.classList.remove("placeholder");
+            spanSaida.classList.remove("placeholder");
+            spanTotal.classList.remove("placeholder");
+            spanEntrada.innerText = `Total de entrada: ${formatarParaReal(
+                valorEntrada
+            )}`;
+            spanSaida.innerText = `Total de saída: ${formatarParaReal(
+                valorSaida
+            )}`;
+            total = valorEntrada - valorSaida;
+            spanTotal.innerText = `Total: ${formatarParaReal(total)}`;
+            // Inicializa o DataTables com botões de exportação
+            $("#tableCaixa").DataTable({
+                destroy: true, // Destruir a tabela existente
+                buttons: ["copy", "csv", "excel", "pdf", "print"],
+                paging: true,
+                pageLength: 10, // Define o número de registros por página
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "Todos"],
+                ], // Opções de exibição de registros por página
+                searching: true, // Habilita a busca
+                scrollCollapse: false, // Desabilita a barra de rolagem
+                fixedHeader: true, // Fixa o cabecalho
+                responsive: true, // Habilita o responsivo
+                autofill: true, // habilita o autofill
+                RegExpr: true, // Habilita o RegExpr
+                smart: false, // Desabilita o smart
+                select: true, // Habilita a seleção
+                info: false, // Desabilita a informação
+
+                processing: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json",
+                },
+                orderCellsTop: true, // Move a coluna de ordem para o topo
+                columnDefs: [
+                    // { targets: [1, 5], visible: false }, // Oculta a primeira coluna
+                    { targets: [3], orderable: false },
+                ],
+                order: [[1, "desc"]], // Define a coluna e o tipo de ordenação
+                ordering: true, // Habilita a ordenação
+                dom: "Blfrtip", // Define os botoes de exportação
+                buttons: [
+                    {
+                        extend: "collection",
+                        text: "Exportar",
+                        autoClose: true,
+                        collectionLayout: "dropdown",
+                        className: "custom-html-collection",
+                        buttons: [
+                            "copy",
+                            "csv",
+                            "excel",
+                            "print", // Botões de exportação
+                            {
+                                extend: "pdfHtml5",
+                                exportOptions: {
+                                    modifier: {
+                                        search: "applied",
+                                        order: "applied",
+                                    }, // Define as colunas que serão exportadas
+                                },
+                                fillename: "Extrarir Dados",
+                                header: true,
+                                title: "Dados Extraidos",
+                                text: "PDF",
+                            },
+                        ],
+                    },
+                ],
+            });
+        }
+
+        // Função para criar e abrir o modal
+        function criarModal(titulo, conteudo, footer) {
+            // Cria o modal usando elementos HTML
+            const modal = document.createElement("div");
+            modal.classList.add("modal", "fade");
+            modal.id = "modal";
+            modal.setAttribute("tabindex", "-1");
+            modal.setAttribute("aria-hidden", "true");
+
+            // Define o conteúdo do modal
+            modal.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">${titulo}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ${conteudo}
+                </div>
+                <div class="modal-footer">
+                    ${footer}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+            // Adiciona o modal ao corpo do documento
+            document.body.appendChild(modal);
+
+            // Inicializa e mostra o modal usando o Bootstrap
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+        }
+
+        // Função para carregar o modal com base no ID
+        function carregarmodal(idModal) {
+            let titulo, conteudo, footer;
+            let textModal = `
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Registro de Receita</h5>
+                <form id="formCaixa">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                            <input type="text" class="form-control" id="descricaoRegistroReceita" placeholder="Informe a descrição">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="valorRegistroReceita" class="form-label">Valor</label>
+                            <input type="number" class="form-control" id="valorRegistroReceita" placeholder="Informe o valor" step="0.01">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
+                            <select class="form-select" id="inputCategoriaRegistroReceita">
+                                <option value="" selected>Selecione a categoria</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta Bancária</label>
+                            <select class="form-select" id="tipoDeContaBancariaRegistroReceita">
+                                <option value="" selected>Selecione a conta bancária</option>
+                                <option value="nenhuma">Nenhuma</option>
+                                <option value="Caixa">Caixa conta Poupança</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="dataRegistroReceita" class="form-label">Data</label>
+                            <input type="date" class="form-control" id="dataRegistroReceita">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                            <select class="form-select" id="inputTipoRegistroReceita">
+                                <option value="" selected>Selecione o tipo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                            <select class="form-select" id="situacaoContaRegistroReceita">
+                                <option value="" selected>Selecione a situação</option>
+                                <option value="Pago">Pago</option>
+                                <option value="Pendente">Pendente</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" onclick="salvarformRegistroCaixa()" class="btn btn-primary">Registrar Receita</button>
+                </form>
+            </div>
+        </div>
+    `;
+            // Configura o modal com base no botão clicado
+            switch (idModal) {
+                case "modalReceita":
+                    titulo = "Receitas";
+                    conteudo = textModal;
+                    footer = `<button type="button" class="btn btn-primary">Salvar Receita</button>`;
+                    // console.log(confiModal());
+                    setTimeout(confiModal, 500);
+                    break;
+
+                default:
+                    titulo = "Modal";
+                    conteudo = "Conteúdo padrão";
+                    footer = "";
+                    break;
+            }
+
+            // Cria e exibe o modal
+            criarModal(titulo, conteudo, footer);
+        }
+
+        async function confiModal() {
+            try {
+                // Agora que o modal está no DOM, obter os elementos <select>
+                let inputCategoria = document.getElementById('inputCategoriaRegistroReceita');
+                let inputTipo = document.getElementById('inputTipoRegistroReceita');
+
+                // Verifique se os elementos foram encontrados
+                if (!inputCategoria || !inputTipo) {
+                    throw new Error("Elementos do modal não encontrados no DOM.");
+                }
+
+                // Usar um Set para garantir valores únicos de tipo
+                let tipostipos = new Set();
+                // Chamar a função carregarAjax para obter os dados e preencher os selects
+                await carregarAjax("carregarTipoCategoria")
+                    .then((response) => {
+                        if (response.situacao) {
+                            // Iterar pelos dados e preencher os selects
+                            inputCategoria.innerHTML = '<option value="" selected>Selecione a categoria</option>';
+                            inputTipo.innerHTML = '<option value="" selected>Selecione o tipo</option>';
+                            response.dado.forEach((element) => {
+                                // Adicionar opção para Categoria
+                                console.log('element.grupo', element.grupo);
+                                let optionCategoria = document.createElement("option");
+                                optionCategoria.text = element.categoria;
+                                optionCategoria.value = element.id;
+                                inputCategoria.add(optionCategoria);
+
+
+                                // Verificar se o tipo já foi adicionado
+                                if (!tipostipos.has(element.tipo)) {
+                                    tipostipos.add(element.tipo);
+                                    let optionTipo = document.createElement("option");
+                                    optionTipo.text = element.tipo;
+                                    optionTipo.value = element.tipo;
+                                    inputTipo.add(optionTipo);
+                                }
+                            });
+                        } else {
+                            console.log(response.mensagem);
+                        }
+                    })
+                    .catch((error) => {
+                        console.log("Erro ao carregar dados:", error);
+                    })
+                    .finally(() => {
+                        // Adicionar opção vazia aos selects
+                        adicionaOpcaoVazia(inputCategoria);
+                        adicionaOpcaoVazia(inputTipo);
+                    });
+
+            } catch (error) {
+                console.error("Erro ao carregar modal:", error);
+            }
+        }
+        // Função para adicionar opção vazia
+        function adicionaOpcaoVazia(select) {
+            if (select) {
+                const option = document.createElement("option");
+                option.text = "";
+                option.value = "";
+                select.add(option);
+            } else {
+                console.error("Elemento select não encontrado para adicionar opção vazia.");
+            }
+        }
+        function salvarformRegistroCaixa(event) {
+            // Previne o comportamento padrão de envio do formulário
+            event.preventDefault();
+
+            // Obtém o formulário pelo ID
+            const formulario = document.getElementById('formCaixa');
+
+            // Cria um objeto FormData a partir do formulário
+            var data = new FormData(formulario);
+
+            // Exibe os dados do formulário no console
+            for (let [name, value] of data) {
+                console.log(`${name}: ${value}`);
+            }
+        }
+        
+
+    </script>
+    <script>
+        carregarPagina("template_login");
+    </script>
+</body>
+
+</html>
