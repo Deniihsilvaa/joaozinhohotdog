@@ -146,8 +146,8 @@
                     <span class="spanHome">Despesas</span>
                 </div>
                 <div class="col-sm btn card w-25 shadow-lg text-bg-info"
-                    onclick="carregarPagina('template_faturamento')">
-                    <span class="spanHome">Faturamento</span>
+                    onclick="carregarPagina('template_RC')">
+                    <span class="spanHome">Registro de Caixa</span>
                 </div>
                 <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina('template_caixa')">
                     <span class="spanHome">Caixa</span>
@@ -171,9 +171,14 @@
 
                     </div>
                 </div>
-                <div class="col shadow ">
+                <div class="col shadow mb-3">
                     <div class="cardDados">
                         <span class="placeholder" id="spanTotal"></span>
+                    </div>
+                </div>
+                <div class="col shadow mb-3">
+                    <div class="cardDados">
+                        <span class="placeholder" id="spanPendente"></span>
                     </div>
                 </div>
             </div>
@@ -188,7 +193,7 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label for="dataIniciofmrCaixa">Data Fim</label>
+                                <label for="dataFimfmrCaixa">Data Fim</label>
                                 <input type="date" id="dataFimfmrCaixa" />
                             </div>
                         </div>
@@ -221,36 +226,38 @@
             </div>
         </div>
     </template>
-    <template id="template_faturamento">
+    <template id="template_RC">
         <div class="container-xxl">
             <div class="card">
                 <div class="card-body">
+                    <div class="card-header"></div>
                     <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
-                                <input type="text" name="descricao" class="form-control" id="descricaoRegistroReceita" placeholder="Informe a descrição">
+                                <input type="text" name="descricao" class="form-control" id="descricaoRegistroReceita"
+                                    placeholder="Informe a descrição">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="valorRegistroReceita" class="form-label">Valor</label>
-                                <input type="number" name="valor" class="form-control" id="valorRegistroReceita" placeholder="Informe o valor" step="0.01">
+                                <input type="number" name="valor" class="form-control" id="valorRegistroReceita"
+                                    placeholder="Informe o valor" step="0.01">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
-                                <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita">
-                                    <option value="" selected>Selecione a categoria</option>
+                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                                <select name="tipo" class="form-select" id="inputTipoRegistroReceita" onchange="carregarCategoriasCaixa(this.value)">
+                                    <option value="" selected>Selecione o tipo</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta Bancária</label>
-                                <select name="contaBancaria" class="form-select" id="tipoDeContaBancariaRegistroReceita">
-                                    <option value="" selected>Selecione a conta bancária</option>
-                                    <option value="nenhuma">Nenhuma</option>
-                                    <option value="Caixa">Caixa conta Poupança</option>
+                                <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita" disabled="disabled">
+                                    <option value="" selected>Selecione a categoria</option>
                                 </select>
                             </div>
+
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -258,9 +265,12 @@
                                 <input type="date" name="data" class="form-control" id="dataRegistroReceita">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
-                                <select name="tipo" class="form-select" id="inputTipoRegistroReceita">
-                                    <option value="" selected>Selecione o tipo</option>
+                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
+                                    Bancária</label>
+                                <select name="contaBancaria" class="form-select"
+                                    id="tipoDeContaBancariaRegistroReceita">
+                                    <option value="" selected>Selecione a conta bancária</option>
+                                    <option value="Caixa">Caixa</option>
                                 </select>
                             </div>
                         </div>
@@ -269,9 +279,8 @@
                                 <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
                                 <select name="situacao" class="form-select" id="situacaoContaRegistroReceita">
                                     <option value="" selected>Selecione a situação</option>
-                                    <option value="Pago">Pago</option>
+                                    <option value="Concluido">Concluido</option>
                                     <option value="Pendente">Pendente</option>
-                                    <option value="Cancelado">Cancelado</option>
                                 </select>
                             </div>
                         </div>
@@ -369,8 +378,8 @@
                     case "template_caixa":
                         carregarTemplateCaixa();
                         break;
-                    case "template_faturamento":
-                    loadInputsCaixa()
+                    case "template_RC":
+                        loadInputsCaixa()
                         break;
                     default:
                         document.getElementById("conteudo").innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
@@ -556,6 +565,20 @@
                 currency: "BRL",
             });
         }
+        function transformaReal(valor) {
+    // Converte o valor para string e remove "R$", espaços, e vírgulas
+    valor = valor.toString().replace(/[R$\s,]/g, '');
+
+    // Converte para número, garantindo que valores negativos sejam tratados
+    const numero = parseFloat(valor) || 0;
+
+    // Retorna o valor no formato de Real
+    return numero.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    });
+}
+
     </script>
     <script id="controlAuntentication">
         function template_init() {
@@ -599,7 +622,7 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_caixa')">Caixa</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_faturamento')">Faturamento</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_RC')">Registro de Caixa</a></li>
                                     <li><a class="dropdown-item" href="#" onclick="carregarPagina('despesas')">Despesas</a></li>
                                 </ul>
                             </li>
@@ -687,12 +710,11 @@
             );
             const ultimoDiaDoMes = new Date(
                 hoje.getFullYear(),
-                hoje.getMonth() + 1,
-                0
+                hoje.getMonth() + 1,0
             );
 
             const dataInicioInput = document.getElementById("dataIniciofmrCaixa");
-            const dataFimInput = document.getElementById("dataIniciofmrCaixa");
+            const dataFimInput = document.getElementById("dataFimfmrCaixa");
 
             // Formata a data para o formato YYYY-MM-DD
             dataInicioInput.value = primeiroDiaDoMes.toISOString().split("T")[0];
@@ -704,6 +726,7 @@
             try {
                 carregardadosCaixa();
                 barRight();
+                definirDatasIniciais();
 
             } catch (error) {
                 console.error("Erro ao carregar template caixa:", error);
@@ -720,6 +743,7 @@
                 // Verifica se os elementos existem antes de acessar .value
                 let dataInicioElement = document.getElementById("dataIniciofmrCaixa").value || null;
                 let dataFimElement = document.getElementById("dataFimfmrCaixa").value || null;
+                
 
                 let dataInicio = dataInicioElement ? dataInicioElement : null;
                 let dataFim = dataFimElement ? dataFimElement : null;
@@ -743,15 +767,20 @@
                     }, 2000);
                     esconderSpinner();
                 }
+                console.log(`Data inicio: ${dataInicio}, Data fim: ${dataFim}`);
                 // Chama a função para carregar os dados
                 const dadosCaixa = carregarAjax(
                     "carregarCaixaDataFiltro",
                     JSON.stringify({ dataInicio, dataFim })
                 );
                 dadosCaixa
-                    .then((response) => {
-                        if (response.situacao) {
-                            criartabelaCaixa(response.dados);
+                    .then((a) => {
+                        if (a.situacao) {
+                            criartabelaCaixa(a.dados, a.caixaAtual,a.sPendete,a.sConcluido);
+                            document.getElementById("spanTotalCaixa").textContent = `Total: R$ ${a.total}`;
+                            document.getElementById("spanEntradaCaixa").textContent = `Entrada: R$ ${a.totalEntrada}`;
+                            document.getElementById("spanSaidaCaixa").textContent = `Saida: R$ ${a.totalSaida}`;
+                            injetTipo(a.sPendete);
                         } else {
                             mostrarAlerta(
                                 "Não foram encontrados dados para as datas informadas.",
@@ -771,8 +800,15 @@
                 esconderSpinner();
             }
         }
-
-        function criartabelaCaixa(dadosCaixa) {
+        function injetTipo(a) {
+            const pendete = document.getElementById("spanPendente");
+            const concluido = document.getElementById("spanConcluido");
+            if (pendete) {
+                pendete.classList.remove("placeholder");
+                pendete.textContent = `Pendente: R$ ${a}`;
+            }
+        }
+        function criartabelaCaixa(dadosCaixa, caixaAtual,a,b) {
             const spanEntrada = document.getElementById("spanEntrada");
             const spanSaida = document.getElementById("spanSaida");
             const spanTotal = document.getElementById("spanTotal");
@@ -804,6 +840,8 @@
                 "tipo",
                 "situacao",
                 "data",
+                "caixaAtual",
+                "acao",
             ];
 
             cabecalhos.forEach((cabecalho) => {
@@ -840,6 +878,20 @@
                         }
                     }
 
+                    if(coluna === "acao"){
+                    $celula.html(`
+                    <div class="btn-group" role="group">
+                        <button type="button"
+                        class="btn btn-danger"
+                        onclick="excluirItemCaixa(${item.id})
+                        
+                        ">
+                        <div class="bttExcluir">
+                            <img src="8780823.png" id="bttExcluirC" alt="bttExcluirC" />
+                        </div>
+                </button>
+                    </div>`)
+                    }
                     $linha.append($celula);
                 });
 
@@ -847,17 +899,25 @@
             });
 
             $tabela.append($tbody);
-            spanEntrada.classList.remove("placeholder");
-            spanSaida.classList.remove("placeholder");
-            spanTotal.classList.remove("placeholder");
-            spanEntrada.innerText = `Total de entrada: ${formatarParaReal(
-                valorEntrada
-            )}`;
-            spanSaida.innerText = `Total de saída: ${formatarParaReal(
-                valorSaida
-            )}`;
-            total = valorEntrada - valorSaida;
-            spanTotal.innerText = `Total: ${formatarParaReal(total)}`;
+            if (spanEntrada) {
+                spanEntrada.classList.remove("placeholder");
+                spanEntrada.id = "spanEntradaCaixa";
+                // spanEntrada.innerText = `Total de entrada: ${formatarParaReal(valorEntrada)}`;
+            }
+
+            if (spanSaida) {
+                spanSaida.classList.remove("placeholder");
+                spanSaida.id = "spanSaidaCaixa";
+                spanSaida.innerText = `Total de saída: ${formatarParaReal(valorSaida)}`;
+            }
+
+            if (spanTotal) {
+                spanTotal.classList.remove("placeholder");
+                spanTotal.id = "spanTotalCaixa";
+                total = valorEntrada - valorSaida;
+                // spanTotal.innerText = `Total: ${formatarParaReal(total)}`;
+            }
+
             // Inicializa o DataTables com botões de exportação
             $("#tableCaixa").DataTable({
                 destroy: true, // Destruir a tabela existente
@@ -876,18 +936,31 @@
                 RegExpr: true, // Habilita o RegExpr
                 smart: false, // Desabilita o smart
                 select: true, // Habilita a seleção
-                info: false, // Desabilita a informação
+                info: true, // Desabilita a informação
 
                 processing: true,
                 language: {
                     url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json",
                 },
-                orderCellsTop: true, // Move a coluna de ordem para o topo
+                //orderCellsTop: true, // Move a coluna de ordem para o topo
                 columnDefs: [
-                    // { targets: [1, 5], visible: false }, // Oculta a primeira coluna
-                    { targets: [3], orderable: false },
+                    { targets: [0], visible: false }, // Oculta a primeira coluna
+                    { targets: [5], orderable: true },
+                    {
+                        targets: 6,
+                        render: function(data, type, row, meta) {
+                            console.log('data', data);
+                            return transformaReal(data);
+                        }
+                    },
+                    {targets: 6,
+                        render: function(data, type, row, meta) {
+                            
+                        }
+                    }
+
                 ],
-                order: [[1, "desc"]], // Define a coluna e o tipo de ordenação
+                order: [[5, "desc"]], // Define a coluna e o tipo de ordenação
                 ordering: true, // Habilita a ordenação
                 dom: "Blfrtip", // Define os botoes de exportação
                 buttons: [
@@ -920,7 +993,18 @@
                 ],
             });
         }
-
+        function excluirItemCaixa(id) {
+            console.log('ID de envio' + id);
+            const dlt = carregarAjax("excluirDadosBaseCaixa", id);
+            dlt.then((e)=>{
+               if (e.situacao) {
+                mostrarAlerta(e.mensagem, 1);
+                carregardadosCaixa();
+               }else{
+                mostrarAlerta(e.mensagem, 0);
+               }
+            })
+        }
         // Função para criar e abrir o modal
         function criarModal(titulo, conteudo, footer) {
             // Cria o modal usando elementos HTML
@@ -959,132 +1043,157 @@
 
         // Função para carregar o modal com base no ID
         async function carregarmodal(idModal) {
-    let titulo, conteudo, footer;
-    let textModalCaixa = `
-    <div class="card">
-        <div class="card-body">
-            <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
-                        <input type="text" name="descricao" class="form-control" id="descricaoRegistroReceita" placeholder="Informe a descrição">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="valorRegistroReceita" class="form-label">Valor</label>
-                        <input type="number" name="valor" class="form-control" id="valorRegistroReceita" placeholder="Informe o valor" step="0.01">
-                    </div>
+            let titulo, conteudo, footer;
+            let textModalCaixa = `
+              <div class="card">
+                <div class="card-body">
+                    <div class="card-header"></div>
+                    <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                                <input type="text" name="descricao" class="form-control" id="descricaoRegistroReceita"
+                                    placeholder="Informe a descrição">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="valorRegistroReceita" class="form-label">Valor</label>
+                                <input type="number" name="valor" class="form-control" id="valorRegistroReceita"
+                                    placeholder="Informe o valor" step="0.01">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                                <select name="tipo" class="form-select" id="inputTipoRegistroReceita" onchange="carregarCategoriasCaixa(this.value)">
+                                    <option value="" selected>Selecione o tipo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita" disabled="disabled">
+                                    <option value="" selected>Selecione a categoria</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroReceita" class="form-label">Data</label>
+                                <input type="date" name="data" class="form-control" id="dataRegistroReceita">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
+                                    Bancária</label>
+                                <select name="contaBancaria" class="form-select"
+                                    id="tipoDeContaBancariaRegistroReceita">
+                                    <option value="" selected>Selecione a conta bancária</option>
+                                    <option value="Caixa">Caixa</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                                <select name="situacao" class="form-select" id="situacaoContaRegistroReceita">
+                                    <option value="" selected>Selecione a situação</option>
+                                    <option value="Concluido">Concluido</option>
+                                    <option value="Pendente">Pendente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Receita</button>
+                    </form>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
-                        <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita">
-                            <option value="" selected>Selecione a categoria</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta Bancária</label>
-                        <select name="contaBancaria" class="form-select" id="tipoDeContaBancariaRegistroReceita">
-                            <option value="" selected>Selecione a conta bancária</option>
-                            <option value="nenhuma">Nenhuma</option>
-                            <option value="Caixa">Caixa conta Poupança</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="dataRegistroReceita" class="form-label">Data</label>
-                        <input type="date" name="data" class="form-control" id="dataRegistroReceita">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
-                        <select name="tipo" class="form-select" id="inputTipoRegistroReceita">
-                            <option value="" selected>Selecione o tipo</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
-                        <select name="situacao" class="form-select" id="situacaoContaRegistroReceita">
-                            <option value="" selected>Selecione a situação</option>
-                            <option value="Pago">Pago</option>
-                            <option value="Pendente">Pendente</option>
-                            <option value="Cancelado">Cancelado</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Salvar Receita</button>
-            </form>
-        </div>
-    </div>
+            </div>
 `;
 
-    switch (idModal) {
-        case "modalReceita":
-            titulo = "Registro de Receita";
-            conteudo = textModalCaixa;
-            footer = `<i class="bi bi-caret-right"></i>`;
-            await criarModal(titulo, conteudo, footer); // Aguarde a criação do modal antes de continuar
-            await loadInputsCaixa(); // Agora carrega o conteúdo do <select> após o modal estar pronto
-            break;
-        default:
-            titulo = "Modal";
-            conteudo = "Conteúdo padrão";
-            break;
-    }
-}
-
-async function loadInputsCaixa() {
-    try {
-        // Obtém os elementos <select>
-        let inputCategoria = document.getElementById('inputCategoriaRegistroReceita');
-        let inputTipo = document.getElementById('inputTipoRegistroReceita');
-
-        // Verifique se os elementos foram encontrados
-        if (!inputCategoria || !inputTipo) {
-            throw new Error("Elementos do modal não encontrados no DOM.");
+            switch (idModal) {
+                case "modalReceita":
+                    titulo = "Registro de Receita";
+                    conteudo = textModalCaixa;
+                    footer = `<i class="bi bi-caret-right"></i>`;
+                    await criarModal(titulo, conteudo, footer); // Aguarde a criação do modal antes de continuar
+                    await loadInputsCaixa(); // Agora carrega o conteúdo do <select> após o modal estar pronto
+                    break;
+                default:
+                    titulo = "Modal";
+                    conteudo = "Conteúdo padrão";
+                    break;
+            }
         }
 
-        // Usar um Set para garantir valores únicos de tipo
-        let tipostipos = new Set();
+        async function loadInputsCaixa() {
+            try {
+                // Obtém os elementos <select>
+                    let inputTipo = document.getElementById('inputTipoRegistroReceita');
+                  // Usar um Set para garantir valores únicos de tipo
+                let tipostipos = new Set();
 
-        // Carregar dados para preencher os selects
-        await carregarAjax("carregarTipoCategoria")
-            .then((a) => {
-                if (a.situacao) {
-                    // Preencher o <select> com as opções de categoria e tipo
-                        inputCategoria.innerHTML = '<option value="" selected>Selecione a categoria</option>';
-                        inputTipo.innerHTML = '<option value="" selected>Selecione o tipo</option>';
-                        
-                        a.dado.forEach((element) => {
-                            // Adicionar opção para Categoria
-                            let optionCategoria = document.createElement("option");
-                            optionCategoria.text = element.categoria;
-                            optionCategoria.value = element.id;
-                            inputCategoria.add(optionCategoria);
-                            
-                            // Verificar se o tipo já foi adicionado
-                            if (!tipostipos.has(element.tipo)) {
-                            
-                            // Adicionar opção para Tipo
-                            tipostipos.add(element.tipo);
-                            let optionTipo = document.createElement("option");
-                            optionTipo.text = element.tipo;
-                            optionTipo.value = element.tipo;
-                            inputTipo.add(optionTipo);
-                           
+                // Carregar dados para preencher os selects
+                await carregarAjax("carregarTipoCategoria")
+                    .then((a) => {
+                        if (a.situacao) {
+                            // Preencher o <select> com as opções de categoria e tipo
+                            inputTipo.innerHTML = '<option value="" selected>Selecione o tipo</option>';
+
+                            a.dado.forEach((element) => {
+                                // Verificar se o tipo já foi adicionado
+                                if (!tipostipos.has(element.tipo)) {
+                                    // Adicionar opção para Tipo
+                                    tipostipos.add(element.tipo);
+                                    let optionTipo = document.createElement("option");
+                                    optionTipo.text = element.tipo;
+                                    optionTipo.value = element.tipo;
+                                    inputTipo.add(optionTipo);
+
+                                }
+                            });
+                        } else {
+                            console.log(a.mensagem);
                         }
+                    })
+                    .catch((error) => {
+                        console.log("Erro ao carregar dados:", error);
                     });
-                } else {
-                    console.log(a.mensagem);
-                }
-            })
-            .catch((error) => {
-                console.log("Erro ao carregar dados:", error);
-            });
 
+            } catch (error) {
+                console.error("Erro ao carregar modal:", error);
+            }
+        }
+
+        async function carregarCategoriasCaixa(tipoSelecionado) {
+            tipoSelecionado?"":inputCategoriaRegistroReceita.disabled = true;
+    try {
+        // Obtenha o elemento do select onde as categorias serão adicionadas
+        let inputCategoria = document.getElementById('inputCategoriaRegistroReceita');
+        let tiposCategorias = new Set(); // Usado para verificar categorias já adicionadas
+
+        // Limpa o select antes de carregar as novas opções
+        inputCategoria.innerHTML = '<option value="" selected>Selecione o tipo</option>';
+
+        // Carrega as categorias através do AJAX
+        const response = await carregarAjax("carregarTipoCategoria");
+        
+        if (response.situacao) {
+            response.dado.forEach((element) => {
+                // Verifica se a categoria é do tipo selecionado (Entrada ou Saída)
+                if (element.tipo === tipoSelecionado && !tiposCategorias.has(element.categoria)) {
+                    // Adiciona a categoria ao conjunto para evitar duplicados
+                    tiposCategorias.add(element.categoria);
+
+                    // Cria uma nova opção para o select e adiciona ao select
+                    let optionTipo = document.createElement("option");
+                    optionTipo.text = element.categoria;
+                    optionTipo.value = element.categoria;
+                    inputCategoria.appendChild(optionTipo);
+                    inputCategoriaRegistroReceita.disabled = false;
+                }
+            });
+        } else {
+            console.log(response.mensagem);
+        }
     } catch (error) {
-        console.error("Erro ao carregar modal:", error);
+        console.log("Erro ao carregar dados:", error);
     }
 }
 
@@ -1104,15 +1213,20 @@ async function loadInputsCaixa() {
 
             const formulario = document.getElementById('formCaixa');
             const formData = new FormData(formulario);
-            
+            // Obtendo os valores de texto dos elementos select
+            const categoriaText = formulario.querySelector('[name="tipo"] option:checked').textContent;
+            const tipoText = formulario.querySelector('[name="categoria"] option:checked').textContent;
+            const situacaoText = formulario.querySelector('[name="situacao"] option:checked').textContent;
+            const contaText = formulario.querySelector('[name="contaBancaria"] option:checked').textContent;
+
             // Extrai os valores dos campos do formulário
             const dados = {
                 data: formData.get('data'),
-                valor: formData.get('valor'),
-                categoria: formData.get('categoria'),
-                tipo: formData.get('tipo'),
-                situacao: formData.get('situacao'),
-                conta: formData.get('contaBancaria'),
+                valor: parseFloat(formData.get('valor')),
+                categoria: categoriaText,
+                tipo: tipoText,
+                situacao: situacaoText,
+                conta: contaText,
                 descricao: formData.get('descricao')
             };
             const a = carregarAjax(
