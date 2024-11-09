@@ -193,7 +193,8 @@
                             </div>
                         </div>
                         <div class="col">
-                            <button type="button" id="btnCarregarCaixa" onclick="carregardadosCaixa(this.id)" class="btn btn-primary mt-2">
+                            <button type="button" id="btnCarregarCaixa" onclick="carregardadosCaixa(this.id)"
+                                class="btn btn-primary mt-2">
                                 Carregar Dados
                             </button>
 
@@ -222,10 +223,60 @@
     </template>
     <template id="template_faturamento">
         <div class="container-xxl">
-            <div class="row p-sm-2 my-5 gap-3">
-                <div class="col-sm btn card w-25 shadow-lg text-bg-info" id="templateFaturamento"
-                    onclick="carregarPagina(this.id)">
-                    <span class="spanHome">Faturamento</span>
+            <div class="card">
+                <div class="card-body">
+                    <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                                <input type="text" name="descricao" class="form-control" id="descricaoRegistroReceita" placeholder="Informe a descrição">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="valorRegistroReceita" class="form-label">Valor</label>
+                                <input type="number" name="valor" class="form-control" id="valorRegistroReceita" placeholder="Informe o valor" step="0.01">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita">
+                                    <option value="" selected>Selecione a categoria</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta Bancária</label>
+                                <select name="contaBancaria" class="form-select" id="tipoDeContaBancariaRegistroReceita">
+                                    <option value="" selected>Selecione a conta bancária</option>
+                                    <option value="nenhuma">Nenhuma</option>
+                                    <option value="Caixa">Caixa conta Poupança</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroReceita" class="form-label">Data</label>
+                                <input type="date" name="data" class="form-control" id="dataRegistroReceita">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                                <select name="tipo" class="form-select" id="inputTipoRegistroReceita">
+                                    <option value="" selected>Selecione o tipo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                                <select name="situacao" class="form-select" id="situacaoContaRegistroReceita">
+                                    <option value="" selected>Selecione a situação</option>
+                                    <option value="Pago">Pago</option>
+                                    <option value="Pendente">Pendente</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Receita</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -290,7 +341,6 @@
 
                 // Espera até que o template seja inserido
                 const template = await inserirTemplate(pagina, destino);
-                console.log("Template carregado:", template);
                 esconderBarralateral();
                 // Agora, execute as outras ações após o template ser carregado
                 switch (pagina) {
@@ -318,6 +368,9 @@
                         break;
                     case "template_caixa":
                         carregarTemplateCaixa();
+                        break;
+                    case "template_faturamento":
+                    loadInputsCaixa()
                         break;
                     default:
                         document.getElementById("conteudo").innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
@@ -387,7 +440,6 @@
                     dataType: "json",
                     success: function (response) {
 
-                        console.log("Resposta:", response);
 
                         // Calcula o tempo gasto na requisição
                         const elapsedTime = Date.now() - startTime;
@@ -684,14 +736,13 @@
                         fecharAlerta();
                     }, 2000);
                     esconderSpinner();
-                }else{
+                } else {
                     mostrarAlerta(`Carregando filtros ${dataInicio} e ${dataFim}`, 3);
                     setTimeout(() => {
                         fecharAlerta();
                     }, 2000);
                     esconderSpinner();
                 }
-                console.log(JSON.stringify({ dataInicio, dataFim }))
                 // Chama a função para carregar os dados
                 const dadosCaixa = carregarAjax(
                     "carregarCaixaDataFiltro",
@@ -699,7 +750,6 @@
                 );
                 dadosCaixa
                     .then((response) => {
-                        console.log(response)
                         if (response.situacao) {
                             criartabelaCaixa(response.dados);
                         } else {
@@ -876,7 +926,7 @@
             // Cria o modal usando elementos HTML
             const modal = document.createElement("div");
             modal.classList.add("modal", "fade");
-            modal.id = "modal";
+            modal.id = "modalCaixa";
             modal.setAttribute("tabindex", "-1");
             modal.setAttribute("aria-hidden", "true");
 
@@ -908,143 +958,136 @@
         }
 
         // Função para carregar o modal com base no ID
-        function carregarmodal(idModal) {
-            let titulo, conteudo, footer;
-            let textModal = `
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Registro de Receita</h5>
-                <form id="formCaixa">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
-                            <input type="text" class="form-control" id="descricaoRegistroReceita" placeholder="Informe a descrição">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="valorRegistroReceita" class="form-label">Valor</label>
-                            <input type="number" class="form-control" id="valorRegistroReceita" placeholder="Informe o valor" step="0.01">
-                        </div>
+        async function carregarmodal(idModal) {
+    let titulo, conteudo, footer;
+    let textModalCaixa = `
+    <div class="card">
+        <div class="card-body">
+            <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                        <input type="text" name="descricao" class="form-control" id="descricaoRegistroReceita" placeholder="Informe a descrição">
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
-                            <select class="form-select" id="inputCategoriaRegistroReceita">
-                                <option value="" selected>Selecione a categoria</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta Bancária</label>
-                            <select class="form-select" id="tipoDeContaBancariaRegistroReceita">
-                                <option value="" selected>Selecione a conta bancária</option>
-                                <option value="nenhuma">Nenhuma</option>
-                                <option value="Caixa">Caixa conta Poupança</option>
-                            </select>
-                        </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="valorRegistroReceita" class="form-label">Valor</label>
+                        <input type="number" name="valor" class="form-control" id="valorRegistroReceita" placeholder="Informe o valor" step="0.01">
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="dataRegistroReceita" class="form-label">Data</label>
-                            <input type="date" class="form-control" id="dataRegistroReceita">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
-                            <select class="form-select" id="inputTipoRegistroReceita">
-                                <option value="" selected>Selecione o tipo</option>
-                            </select>
-                        </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
+                        <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita">
+                            <option value="" selected>Selecione a categoria</option>
+                        </select>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
-                            <select class="form-select" id="situacaoContaRegistroReceita">
-                                <option value="" selected>Selecione a situação</option>
-                                <option value="Pago">Pago</option>
-                                <option value="Pendente">Pendente</option>
-                                <option value="Cancelado">Cancelado</option>
-                            </select>
-                        </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta Bancária</label>
+                        <select name="contaBancaria" class="form-select" id="tipoDeContaBancariaRegistroReceita">
+                            <option value="" selected>Selecione a conta bancária</option>
+                            <option value="nenhuma">Nenhuma</option>
+                            <option value="Caixa">Caixa conta Poupança</option>
+                        </select>
                     </div>
-                    <button type="button" onclick="salvarformRegistroCaixa()" class="btn btn-primary">Registrar Receita</button>
-                </form>
-            </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="dataRegistroReceita" class="form-label">Data</label>
+                        <input type="date" name="data" class="form-control" id="dataRegistroReceita">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                        <select name="tipo" class="form-select" id="inputTipoRegistroReceita">
+                            <option value="" selected>Selecione o tipo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                        <select name="situacao" class="form-select" id="situacaoContaRegistroReceita">
+                            <option value="" selected>Selecione a situação</option>
+                            <option value="Pago">Pago</option>
+                            <option value="Pendente">Pendente</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Receita</button>
+            </form>
         </div>
-    `;
-            // Configura o modal com base no botão clicado
-            switch (idModal) {
-                case "modalReceita":
-                    titulo = "Receitas";
-                    conteudo = textModal;
-                    footer = `<button type="button" class="btn btn-primary">Salvar Receita</button>`;
-                    // console.log(confiModal());
-                    setTimeout(confiModal, 500);
-                    break;
+    </div>
+`;
 
-                default:
-                    titulo = "Modal";
-                    conteudo = "Conteúdo padrão";
-                    footer = "";
-                    break;
-            }
+    switch (idModal) {
+        case "modalReceita":
+            titulo = "Registro de Receita";
+            conteudo = textModalCaixa;
+            footer = `<i class="bi bi-caret-right"></i>`;
+            await criarModal(titulo, conteudo, footer); // Aguarde a criação do modal antes de continuar
+            await loadInputsCaixa(); // Agora carrega o conteúdo do <select> após o modal estar pronto
+            break;
+        default:
+            titulo = "Modal";
+            conteudo = "Conteúdo padrão";
+            break;
+    }
+}
 
-            // Cria e exibe o modal
-            criarModal(titulo, conteudo, footer);
+async function loadInputsCaixa() {
+    try {
+        // Obtém os elementos <select>
+        let inputCategoria = document.getElementById('inputCategoriaRegistroReceita');
+        let inputTipo = document.getElementById('inputTipoRegistroReceita');
+
+        // Verifique se os elementos foram encontrados
+        if (!inputCategoria || !inputTipo) {
+            throw new Error("Elementos do modal não encontrados no DOM.");
         }
 
-        async function confiModal() {
-            try {
-                // Agora que o modal está no DOM, obter os elementos <select>
-                let inputCategoria = document.getElementById('inputCategoriaRegistroReceita');
-                let inputTipo = document.getElementById('inputTipoRegistroReceita');
+        // Usar um Set para garantir valores únicos de tipo
+        let tipostipos = new Set();
 
-                // Verifique se os elementos foram encontrados
-                if (!inputCategoria || !inputTipo) {
-                    throw new Error("Elementos do modal não encontrados no DOM.");
-                }
-
-                // Usar um Set para garantir valores únicos de tipo
-                let tipostipos = new Set();
-                // Chamar a função carregarAjax para obter os dados e preencher os selects
-                await carregarAjax("carregarTipoCategoria")
-                    .then((response) => {
-                        if (response.situacao) {
-                            // Iterar pelos dados e preencher os selects
-                            inputCategoria.innerHTML = '<option value="" selected>Selecione a categoria</option>';
-                            inputTipo.innerHTML = '<option value="" selected>Selecione o tipo</option>';
-                            response.dado.forEach((element) => {
-                                // Adicionar opção para Categoria
-                                console.log('element.grupo', element.grupo);
-                                let optionCategoria = document.createElement("option");
-                                optionCategoria.text = element.categoria;
-                                optionCategoria.value = element.id;
-                                inputCategoria.add(optionCategoria);
-
-
-                                // Verificar se o tipo já foi adicionado
-                                if (!tipostipos.has(element.tipo)) {
-                                    tipostipos.add(element.tipo);
-                                    let optionTipo = document.createElement("option");
-                                    optionTipo.text = element.tipo;
-                                    optionTipo.value = element.tipo;
-                                    inputTipo.add(optionTipo);
-                                }
-                            });
-                        } else {
-                            console.log(response.mensagem);
+        // Carregar dados para preencher os selects
+        await carregarAjax("carregarTipoCategoria")
+            .then((a) => {
+                if (a.situacao) {
+                    // Preencher o <select> com as opções de categoria e tipo
+                        inputCategoria.innerHTML = '<option value="" selected>Selecione a categoria</option>';
+                        inputTipo.innerHTML = '<option value="" selected>Selecione o tipo</option>';
+                        
+                        a.dado.forEach((element) => {
+                            // Adicionar opção para Categoria
+                            let optionCategoria = document.createElement("option");
+                            optionCategoria.text = element.categoria;
+                            optionCategoria.value = element.id;
+                            inputCategoria.add(optionCategoria);
+                            
+                            // Verificar se o tipo já foi adicionado
+                            if (!tipostipos.has(element.tipo)) {
+                            
+                            // Adicionar opção para Tipo
+                            tipostipos.add(element.tipo);
+                            let optionTipo = document.createElement("option");
+                            optionTipo.text = element.tipo;
+                            optionTipo.value = element.tipo;
+                            inputTipo.add(optionTipo);
+                           
                         }
-                    })
-                    .catch((error) => {
-                        console.log("Erro ao carregar dados:", error);
-                    })
-                    .finally(() => {
-                        // Adicionar opção vazia aos selects
-                        adicionaOpcaoVazia(inputCategoria);
-                        adicionaOpcaoVazia(inputTipo);
                     });
+                } else {
+                    console.log(a.mensagem);
+                }
+            })
+            .catch((error) => {
+                console.log("Erro ao carregar dados:", error);
+            });
 
-            } catch (error) {
-                console.error("Erro ao carregar modal:", error);
-            }
-        }
+    } catch (error) {
+        console.error("Erro ao carregar modal:", error);
+    }
+}
+
         // Função para adicionar opção vazia
         function adicionaOpcaoVazia(select) {
             if (select) {
@@ -1056,22 +1099,39 @@
                 console.error("Elemento select não encontrado para adicionar opção vazia.");
             }
         }
-        function salvarformRegistroCaixa(event) {
-            // Previne o comportamento padrão de envio do formulário
-            event.preventDefault();
+        async function salvarformRegistroCaixa(e) {
+            e.preventDefault(); // Previne o envio padrão do formulário
 
-            // Obtém o formulário pelo ID
             const formulario = document.getElementById('formCaixa');
+            const formData = new FormData(formulario);
+            
+            // Extrai os valores dos campos do formulário
+            const dados = {
+                data: formData.get('data'),
+                valor: formData.get('valor'),
+                categoria: formData.get('categoria'),
+                tipo: formData.get('tipo'),
+                situacao: formData.get('situacao'),
+                conta: formData.get('contaBancaria'),
+                descricao: formData.get('descricao')
+            };
+            const a = carregarAjax(
+                "sRC",
+                JSON.stringify(dados)
+            );
 
-            // Cria um objeto FormData a partir do formulário
-            var data = new FormData(formulario);
+            a.then((response) => {
+                if (response.situacao) {
+                    mostrarAlerta(response.mensagem, 1);
+                    carregardadosCaixa();
+                    formulario.reset();
 
-            // Exibe os dados do formulário no console
-            for (let [name, value] of data) {
-                console.log(`${name}: ${value}`);
-            }
+                } else {
+                    mostrarAlerta(response.mensagem, 2);
+                }
+            })
         }
-        
+
 
     </script>
     <script>
