@@ -145,12 +145,14 @@
                 <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina(this.id)">
                     <span class="spanHome">Despesas</span>
                 </div>
-                <div class="col-sm btn card w-25 shadow-lg text-bg-info"
-                    onclick="carregarPagina('template_RC')">
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina('template_RC')">
                     <span class="spanHome">Registro de Caixa</span>
                 </div>
                 <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina('template_caixa')">
                     <span class="spanHome">Caixa</span>
+                </div>
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina('template_Dashboard')">
+                    <span class="spanHome">Planejamento</span>
                 </div>
             </div>
         </div>
@@ -158,6 +160,7 @@
     </template>
     <template id="template_caixa">
         <div class="container-fluid">
+            <div class="card-header text-bg-light">Caixa</div>
             <div class="row shadow gap-1">
                 <p></p>
                 <div class="col shadow text-bg-success mb-3">
@@ -168,7 +171,6 @@
                 <div class="col shadow text-bg-danger mb-3">
                     <div class="cardDados">
                         <span class="placeholder" id="spanSaida"></span>
-
                     </div>
                 </div>
                 <div class="col shadow mb-3">
@@ -202,7 +204,6 @@
                                 class="btn btn-primary mt-2">
                                 Carregar Dados
                             </button>
-
                         </div>
                     </div>
                 </div>
@@ -230,64 +231,83 @@
         <div class="container-xxl">
             <div class="card">
                 <div class="card-body">
-                    <div class="card-header"></div>
-                    <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
-                                <input type="text" name="descricao" class="form-control" id="descricaoRegistroReceita"
-                                    placeholder="Informe a descrição">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="valorRegistroReceita" class="form-label">Valor</label>
-                                <input type="number" name="valor" class="form-control" id="valorRegistroReceita"
-                                    placeholder="Informe o valor" step="0.01">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
-                                <select name="tipo" class="form-select" id="inputTipoRegistroReceita" onchange="carregarCategoriasCaixa(this.value)">
-                                    <option value="" selected>Selecione o tipo</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
-                                <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita" disabled="disabled">
-                                    <option value="" selected>Selecione a categoria</option>
-                                </select>
-                            </div>
-
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="dataRegistroReceita" class="form-label">Data</label>
-                                <input type="date" name="data" class="form-control" id="dataRegistroReceita">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
-                                    Bancária</label>
-                                <select name="contaBancaria" class="form-select"
-                                    id="tipoDeContaBancariaRegistroReceita">
-                                    <option value="" selected>Selecione a conta bancária</option>
-                                    <option value="Caixa">Caixa</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
-                                <select name="situacao" class="form-select" id="situacaoContaRegistroReceita">
-                                    <option value="" selected>Selecione a situação</option>
-                                    <option value="Concluido">Concluido</option>
-                                    <option value="Pendente">Pendente</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Salvar Receita</button>
-                    </form>
+                    <div class="card-header" id="cardHeaderRC"></div>
                 </div>
             </div>
+        </div>
+    </template>
+    <template id="template_Dashboard">
+        <div class="container-xxl">
+            <h1>DRE - Demonstração de Resultado do Exercício</h1>
+            <table id="dreTable">
+                <tr class="section-title">
+                    <td colspan="2">Receita Operacional Bruta</td>
+                </tr>
+                <tr>
+                    <td>Receita de Vendas</td>
+                    <td>
+                        <input type="number" id="receitaVendas" value="0" oninput="calculateDRE()" />
+                    </td>
+                </tr>
+
+                <tr class="section-title">
+                    <td colspan="2">(-) Deduções</td>
+                </tr>
+                <tr>
+                    <td>Impostos sobre Vendas</td>
+                    <td>
+                        <input type="number" id="impostos" value="0" oninput="calculateDRE()" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Devoluções</td>
+                    <td>
+                        <input type="number" id="devolucoes" value="0" oninput="calculateDRE()" />
+                    </td>
+                </tr>
+
+                <tr class="section-title">
+                    <td colspan="2">(-) Custo dos Produtos Vendidos (CPV)</td>
+                </tr>
+                <tr>
+                    <td>CPV</td>
+                    <td>
+                        <input type="number" id="cpv" value="0" oninput="calculateDRE()" />
+                    </td>
+                </tr>
+
+                <tr class="section-title">
+                    <td colspan="2">Despesas Operacionais</td>
+                </tr>
+                <tr>
+                    <td>Despesas Administrativas</td>
+                    <td>
+                        <input type="number" id="despesasAdm" value="0" oninput="calculateDRE()" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Despesas Comerciais</td>
+                    <td>
+                        <input type="number" id="despesasCom" value="0" oninput="calculateDRE()" />
+                    </td>
+                </tr>
+
+                <tr class="section-title">
+                    <td colspan="2">Resultado</td>
+                </tr>
+                <tr>
+                    <td>Lucro Bruto</td>
+                    <td id="lucroBruto">0</td>
+                </tr>
+                <tr>
+                    <td>Lucro Operacional</td>
+                    <td id="lucroOperacional">0</td>
+                </tr>
+                <tr>
+                    <td>Lucro Líquido</td>
+                    <td id="lucroLiquido">0</td>
+                </tr>
+            </table>
         </div>
     </template>
     <!-- Spinner Overlay -->
@@ -336,7 +356,6 @@
                         if (pagina === "template_login") {
                             template_init();
 
-
                             return;
                         }
                     }
@@ -379,27 +398,32 @@
                         carregarTemplateCaixa();
                         break;
                     case "template_RC":
-                        loadInputsCaixa()
+                        loadTemplateForm("cardHeaderRC");
+                        loadInputsCaixa();
+                        break;
+                    case "template_Dashboard":
                         break;
                     default:
-                        document.getElementById("conteudo").innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
+                        document.getElementById(
+                            "conteudo"
+                        ).innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
                         break;
                 }
             } catch (error) {
-                document.getElementById("conteudo").innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
+                document.getElementById(
+                    "conteudo"
+                ).innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
                 console.error("Error:", error);
             }
         }
         const removerClasseElemnto = (elemento, classe) => {
             return elemento.classList.remove(classe);
-
-        }
+        };
         const adicionarClasseElemento = (elemento, classe) => {
             return elemento.classList.add(classe);
-        }
+        };
         // Torna inserirTemplate assíncrona, se ainda não for
         async function inserirTemplate(templateId, destino) {
-
             try {
                 const formularioID = document.getElementById(templateId);
                 const paginanova = document.getElementById(destino);
@@ -418,7 +442,6 @@
                         paginanova.appendChild(clone);
                         paginanova.classList.add("show"); // Adiciona a classe para mostrar após inserir o novo conteúdo
                         resolve(formularioID); // Resolve a promessa após inserir o conteúdo
-
                     }, 500); // O tempo deve corresponder à duração da transição CSS
                 });
             } catch (error) {
@@ -448,8 +471,6 @@
                     data: { qualFuncao: qualFuncao, dados: dados },
                     dataType: "json",
                     success: function (response) {
-
-
                         // Calcula o tempo gasto na requisição
                         const elapsedTime = Date.now() - startTime;
                         const remainingTime = 1000 - elapsedTime; // Calcula o tempo restante para completar 1 segundo
@@ -460,20 +481,16 @@
                         } else {
                             resolve(response);
                             esconderSpinner();
-
                         }
                     },
                     error: function (error) {
                         console.error("Erro na requisição Ajax:", error);
                         reject(error);
                     },
-                    complete: function () {
-
-                    },
+                    complete: function () { },
                 });
             });
         }
-
     </script>
     <script id="function aux">
         // Função para mostrar o spinner
@@ -559,26 +576,33 @@
             alertPlaceholder.innerHTML = ""; // Remove o alerta
         }
 
-        function formatarParaReal(valor) {
-            return valor.toLocaleString("pt-BR", {
+        function transformaInputReal(input) {
+            // Remove todos os caracteres que não são números, exceto a vírgula e ponto
+            let valor = input.value.replace(/\D/g, "");
+
+            // Formatação do valor como moeda
+            valor = (valor / 100).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+            });
+
+            // Define o valor formatado no campo de entrada
+            input.value = valor;
+        }
+
+        function transformaReal(valor) {
+            // Converte o valor para string e remove "R$", espaços, e vírgulas
+            valor = valor.toString().replace(/[R$\s,]/g, "");
+
+            // Converte para número, garantindo que valores negativos sejam tratados
+            const numero = parseFloat(valor) || 0;
+
+            // Retorna o valor no formato de Real
+            return numero.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
             });
         }
-        function transformaReal(valor) {
-    // Converte o valor para string e remove "R$", espaços, e vírgulas
-    valor = valor.toString().replace(/[R$\s,]/g, '');
-
-    // Converte para número, garantindo que valores negativos sejam tratados
-    const numero = parseFloat(valor) || 0;
-
-    // Retorna o valor no formato de Real
-    return numero.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-    });
-}
-
     </script>
     <script id="controlAuntentication">
         function template_init() {
@@ -623,7 +647,7 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_caixa')">Caixa</a></li>
                                     <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_RC')">Registro de Caixa</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('despesas')">Despesas</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_Dashboard')">Metricas</a></li>
                                 </ul>
                             </li>
                             <!-- Outros Dropdowns... -->
@@ -646,7 +670,6 @@
                 <div id="conteudoLateral">
                     //conteudo sera esibido aqui
                 </div>
-                
             </div>
             <!-- Conteúdo Principal -->
             <div class="main">
@@ -692,13 +715,12 @@
                 menu.innerHTML = `
     <div class="d-flex justify-content-center align-items-center h-100">
         <div class="d-grid gap-2">
-            <button type="button" class="btn btn-primary" onclick="carregarmodal(this.id)" id="modalReceita">Registros de Caixa</button>
+            <button type="button" class="btn btn-primary" onclick="carregarmodal(this.id)" id="modalCaixa">Registros de Caixa</button>
         </div>
     </div>
             `;
             } catch (error) {
                 console.error("Erro ao carregar template caixa:", error);
-
             }
         }
         function definirDatasIniciais() {
@@ -710,7 +732,8 @@
             );
             const ultimoDiaDoMes = new Date(
                 hoje.getFullYear(),
-                hoje.getMonth() + 1,0
+                hoje.getMonth() + 1,
+                0
             );
 
             const dataInicioInput = document.getElementById("dataIniciofmrCaixa");
@@ -722,32 +745,27 @@
         }
 
         // Chama a função quando o template é inserido
-        function carregarTemplateCaixa() {
+        async function carregarTemplateCaixa() {
             try {
-                carregardadosCaixa();
+                await carregardadosCaixa();
                 barRight();
                 definirDatasIniciais();
-
             } catch (error) {
                 console.error("Erro ao carregar template caixa:", error);
             } finally {
-
             }
         }
 
         // Esta função deve ser chamada após o template ser inserido
-        function carregardadosCaixa(filtrar) {
+        async function carregardadosCaixa(filtrar) {
             mostrarSpinner();
             try {
-
                 // Verifica se os elementos existem antes de acessar .value
-                let dataInicioElement = document.getElementById("dataIniciofmrCaixa").value || null;
-                let dataFimElement = document.getElementById("dataFimfmrCaixa").value || null;
-                
+                let dataInicioElement = document.getElementById("dataIniciofmrCaixa");
+                let dataFimElement = document.getElementById("dataFimfmrCaixa");
 
-                let dataInicio = dataInicioElement ? dataInicioElement : null;
-                let dataFim = dataFimElement ? dataFimElement : null;
-
+                let dataInicio = dataInicioElement ? dataInicioElement.value : null;
+                let dataFim = dataFimElement ? dataFimElement.value : null;
 
                 const tableBody = document
                     .getElementById("tableCaixa")
@@ -767,7 +785,6 @@
                     }, 2000);
                     esconderSpinner();
                 }
-                console.log(`Data inicio: ${dataInicio}, Data fim: ${dataFim}`);
                 // Chama a função para carregar os dados
                 const dadosCaixa = carregarAjax(
                     "carregarCaixaDataFiltro",
@@ -776,10 +793,16 @@
                 dadosCaixa
                     .then((a) => {
                         if (a.situacao) {
-                            criartabelaCaixa(a.dados, a.caixaAtual,a.sPendete,a.sConcluido);
-                            document.getElementById("spanTotalCaixa").textContent = `Total: R$ ${a.total}`;
-                            document.getElementById("spanEntradaCaixa").textContent = `Entrada: R$ ${a.totalEntrada}`;
-                            document.getElementById("spanSaidaCaixa").textContent = `Saida: R$ ${a.totalSaida}`;
+                            criartabelaCaixa(a.dados, a.caixaAtual, a.sPendete);
+                            document.getElementById(
+                                "spanTotalCaixa"
+                            ).textContent = `Total: R$ ${a.total}`;
+                            document.getElementById(
+                                "spanEntradaCaixa"
+                            ).textContent = `Entrada: R$ ${a.totalEntrada}`;
+                            document.getElementById(
+                                "spanSaidaCaixa"
+                            ).textContent = `Saida: R$ ${a.totalSaida}`;
                             injetTipo(a.sPendete);
                         } else {
                             mostrarAlerta(
@@ -792,8 +815,6 @@
                         console.error("Error:", error);
                         mostrarAlerta("Erro ao carregar dados!", 2);
                     });
-
-
             } catch (error) {
                 console.log("Erro ao carregar dados:", error);
 
@@ -808,32 +829,29 @@
                 pendete.textContent = `Pendente: R$ ${a}`;
             }
         }
-        function criartabelaCaixa(dadosCaixa, caixaAtual,a,b) {
+        function criartabelaCaixa(dadosCaixa, caixaAtual, a) {
             const spanEntrada = document.getElementById("spanEntrada");
             const spanSaida = document.getElementById("spanSaida");
             const spanTotal = document.getElementById("spanTotal");
 
-            // Definindo as cores para cada situação
             const cores = {
-                Pendente: "#ff5733", // Cor para situação "pendente"
-                Concluido: "#00ff00", // Cor para situação "concluído"
-                Cancelado: "#000000", // Cor para situação "cancelado"
+                Pendente: "#ff5733",
+                Concluido: "#00ff00",
+                Cancelado: "#000000",
             };
             let valorEntrada = 0;
             let valorSaida = 0;
             let total = 0;
 
-            // Adicionando a classe "table-active" para a tabela
             const $tabela = $("#tableCaixa");
             $tabela.addClass("table-active");
-
-            // Limpando o conteúdo anterior da tabela
             $tabela.empty();
 
-            // Criando o cabeçalho da tabela
+            // Criando o cabeçalho da tabela com uma coluna extra para o checkbox
             const $thead = $("<thead></thead>");
             const $linhaCabecalho = $("<tr></tr>");
             const cabecalhos = [
+                "", // Coluna para checkbox
                 "id",
                 "descricao",
                 "valor",
@@ -856,42 +874,54 @@
             dadosCaixa.forEach((item) => {
                 const $linha = $("<tr></tr>");
 
-                cabecalhos.forEach((coluna) => {
+                // Adicionando o checkbox na primeira coluna
+                const $checkboxCelula = $("<td></td>");
+                const $checkbox = $("<input>")
+                    .attr("type", "checkbox")
+                    .attr("class", "select-checkbox")
+                    .attr("data-id", item.id); // Atribui o ID do item ao checkbox
+                $checkboxCelula.append($checkbox);
+                $linha.append($checkboxCelula);
+
+                // Adiciona as demais colunas
+                cabecalhos.slice(1).forEach((coluna) => {
                     const $celula = $("<td></td>").text(item[coluna]);
 
-                    // Se a coluna for "situacao", aplica a cor conforme o status
                     if (coluna === "situacao" && cores[item[coluna]]) {
                         $celula.css("background-color", cores[item[coluna]]);
-                        $celula.css("color", "#fff"); // Define a cor do texto como branca para melhor contraste
+                        $celula.css("color", "#fff");
                     }
 
                     if (coluna == "valor") {
-                        $celula.text(formatarParaReal(item[coluna]));
+                        $celula.text(transformaReal(item[coluna]));
                     }
-                    if (coluna === "tipo") {
 
-                        // Acessando o valor da coluna "valor" diretamente
+                    if (coluna === "tipo") {
                         if (item[coluna] === "Entrada") {
-                            valorEntrada += parseFloat(item.valor); // ou item[coluna] dependendo da estrutura do objeto
+                            valorEntrada += parseFloat(item.valor);
                         } else if (item[coluna] === "Saída") {
-                            valorSaida += parseFloat(item.valor); // ou item[coluna]
+                            valorSaida += parseFloat(item.valor);
                         }
                     }
 
-                    if(coluna === "acao"){
-                    $celula.html(`
+                    if (coluna === "acao") {
+                        $celula.html(`
                     <div class="btn-group" role="group">
-                        <button type="button"
-                        class="btn btn-danger"
-                        onclick="excluirItemCaixa(${item.id})
-                        
-                        ">
-                        <div class="bttExcluir">
-                            <img src="8780823.png" id="bttExcluirC" alt="bttExcluirC" />
-                        </div>
-                </button>
-                    </div>`)
+                        <button type="button" class="btn" onclick="excluirItemCaixa(${item.id})">
+                            <div class="bttExcluir">
+                                <img src="8780823.png" id="bttExcluirC" alt="bttExcluirC" />
+                            </div>
+                        </button>
+                            <button type="button" class="btn"
+                            
+                            onclick="carregarmodalEditarCaixa(${item.id})">
+                            <div class="bttEditar">
+                                <img src="../img/pencil_6563650.png" id="bttEditar" alt="bttEditar" />
+                            </div>
+                        </button>
+                    </div>`);
                     }
+
                     $linha.append($celula);
                 });
 
@@ -899,70 +929,51 @@
             });
 
             $tabela.append($tbody);
+
             if (spanEntrada) {
                 spanEntrada.classList.remove("placeholder");
                 spanEntrada.id = "spanEntradaCaixa";
-                // spanEntrada.innerText = `Total de entrada: ${formatarParaReal(valorEntrada)}`;
             }
 
             if (spanSaida) {
                 spanSaida.classList.remove("placeholder");
                 spanSaida.id = "spanSaidaCaixa";
-                spanSaida.innerText = `Total de saída: ${formatarParaReal(valorSaida)}`;
+                spanSaida.innerText = `Total de saída: ${transformaReal(valorSaida)}`;
             }
 
             if (spanTotal) {
                 spanTotal.classList.remove("placeholder");
                 spanTotal.id = "spanTotalCaixa";
                 total = valorEntrada - valorSaida;
-                // spanTotal.innerText = `Total: ${formatarParaReal(total)}`;
             }
 
-            // Inicializa o DataTables com botões de exportação
             $("#tableCaixa").DataTable({
-                destroy: true, // Destruir a tabela existente
+                destroy: true,
                 buttons: ["copy", "csv", "excel", "pdf", "print"],
                 paging: true,
-                pageLength: 10, // Define o número de registros por página
+                pageLength: 10,
                 lengthMenu: [
                     [10, 25, 50, -1],
                     [10, 25, 50, "Todos"],
-                ], // Opções de exibição de registros por página
-                searching: true, // Habilita a busca
-                scrollCollapse: false, // Desabilita a barra de rolagem
-                fixedHeader: true, // Fixa o cabecalho
-                responsive: true, // Habilita o responsivo
-                autofill: true, // habilita o autofill
-                RegExpr: true, // Habilita o RegExpr
-                smart: false, // Desabilita o smart
-                select: true, // Habilita a seleção
-                info: true, // Desabilita a informação
-
+                ],
+                searching: true,
+                scrollCollapse: false,
+                fixedHeader: true,
+                responsive: true,
+                autofill: true,
+                select: true,
+                info: true,
                 processing: true,
                 language: {
                     url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json",
                 },
-                //orderCellsTop: true, // Move a coluna de ordem para o topo
                 columnDefs: [
-                    { targets: [0], visible: false }, // Oculta a primeira coluna
+                    // { targets: [1], visible: false }, // Oculta a coluna de IDs
                     { targets: [5], orderable: true },
-                    {
-                        targets: 6,
-                        render: function(data, type, row, meta) {
-                            console.log('data', data);
-                            return transformaReal(data);
-                        }
-                    },
-                    {targets: 6,
-                        render: function(data, type, row, meta) {
-                            
-                        }
-                    }
-
                 ],
-                order: [[5, "desc"]], // Define a coluna e o tipo de ordenação
-                ordering: true, // Habilita a ordenação
-                dom: "Blfrtip", // Define os botoes de exportação
+                order: [[5, "desc"]],
+                ordering: true,
+                dom: "Blfrtip",
                 buttons: [
                     {
                         extend: "collection",
@@ -974,18 +985,15 @@
                             "copy",
                             "csv",
                             "excel",
-                            "print", // Botões de exportação
+                            "print",
                             {
                                 extend: "pdfHtml5",
                                 exportOptions: {
-                                    modifier: {
-                                        search: "applied",
-                                        order: "applied",
-                                    }, // Define as colunas que serão exportadas
+                                    modifier: { search: "applied", order: "applied" },
                                 },
-                                fillename: "Extrarir Dados",
+                                filename: "Extrair Dados",
                                 header: true,
-                                title: "Dados Extraidos",
+                                title: "Dados Extraídos",
                                 text: "PDF",
                             },
                         ],
@@ -993,18 +1001,153 @@
                 ],
             });
         }
-        function excluirItemCaixa(id) {
-            console.log('ID de envio' + id);
-            const dlt = carregarAjax("excluirDadosBaseCaixa", id);
-            dlt.then((e)=>{
-               if (e.situacao) {
-                mostrarAlerta(e.mensagem, 1);
-                carregardadosCaixa();
-               }else{
-                mostrarAlerta(e.mensagem, 0);
-               }
-            })
+        async function carregarmodalEditarCaixa(id) {
+            carregarmodal("modalCaixa"); // Abre o modal
+
+            // Carrega os dados do servidor de forma eficiente
+            const dadosBuscados = await carregarAjax("carregarCaixaFiltro", id);
+            // console.log("retorno do carregarCaixaFiltro:", dadosBuscados);
+
+            // Verifica se os dados foram carregados com sucesso
+            if (dadosBuscados && dadosBuscados.situacao) {
+                // Preenche os dados do modal sem setTimeout, já que a operação é assíncrona
+                elementeCaixa(dadosBuscados.dados);
+
+                // Definir eventos de "Salvar" e "Cancelar"
+                // configurarEventosBotao();
+            }
         }
+
+        function configurarEventosBotao() {
+            // Configura o evento de "Salvar"
+            const btnSalvar = document.getElementById("btnSalvarCaixa");
+            btnSalvar.onclick = async () => {
+                const dados = obterDadosFormulario();
+                const salvar = await carregarAjax("sRC", JSON.stringify(dados));
+
+                if (salvar && salvar.situacao) {
+                    document.getElementById("modalEditarCaixa").style.display = "none";
+                    carregarTabelaCaixa();
+                }
+            };
+
+            // Configura o evento de "Cancelar"
+            const btnCancelar = document.getElementById("btnCancelarCaixa");
+            btnCancelar.onclick = () => {
+                document.getElementById("modalEditarCaixa").style.display = "none";
+            };
+        }
+
+        function obterDadosFormulario() {
+            return {
+                id: document.getElementById("inputIdCaixa").value,
+                descricao: document.getElementById("descricaoRegistroReceita").value,
+                valor: document.getElementById("valorRegistroReceita").value,
+                tipo: document.getElementById("inputTipoRegistroReceita").value,
+                data: document.getElementById("inputDataCaixa").value,
+                situacao: document.getElementById("inputSituacaoCaixa").value,
+                dataRegistro: document.getElementById("inputDataRegistroCaixa").value,
+                contaBancaria: document.getElementById("inputContaBancariaCaixa")
+                    .value,
+                dataVencimento: document.getElementById("inputDataVencimentoCaixa")
+                    .value,
+                observacao: document.getElementById("inputObservacaoCaixa").value,
+                dataCompetencia: document.getElementById("inputDataCompetenciaCaixa")
+                    .value,
+            };
+        }
+
+        async function elementeCaixa(dados) {
+            // Acessa o primeiro item do array
+            await loadInputsCaixa();
+            let item = dados[0];
+            // Armazena os elementos do DOM em variáveis para evitar chamadas repetidas
+            const campos = {
+                inputId: document.getElementById("inputIdCaixa"),
+                inputDescricao: document.getElementById("descricaoRegistroReceita"),
+                inputValor: document.getElementById("valorRegistroReceita"),
+                inputTipo: document.getElementById("inputTipoRegistroReceita"),
+                inputCategoria: document.getElementById(
+                    "inputCategoriaRegistroReceita"
+                ),
+                inputDataCompetencia: document.getElementById(
+                    "dataRegistroCompetencia"
+                ),
+                inputData: document.getElementById("dataRegistroReceita"),
+                inputTipoDeConta: document.getElementById(
+                    "tipoDeContaBancariaRegistroReceita"
+                ),
+                inputSituacao: document.getElementById(
+                    "situacaoContaRegistroReceita"
+                ),
+                inputDataVencimento: document.getElementById(
+                    "dataVencimentoRegistroReceita"
+                ),
+                inputObservacao: document.getElementById(
+                    "observacoesRegistroReceita"
+                ),
+            };
+            // Preenche os campos se eles existirem e se o valor do item estiver disponível
+            if (campos.inputId && item.id !== undefined)
+                campos.inputId.value = item.id;
+            if (campos.inputDescricao && item.descricao !== undefined)
+                campos.inputDescricao.value = item.descricao;
+            if (campos.inputValor && item.valor !== undefined)
+                campos.inputValor.value = item.valor;
+            if (campos.inputTipo && item.tipoDeCusto !== undefined) {
+                campos.inputTipo.value = item.tipoDeCusto;
+                campos.inputCategoria.disabled = false;
+            }
+
+            if (campos.inputCategoria && item.tipoMovimentacao !== undefined) {
+                campos.inputCategoria.value = item.tipoMovimentacao;
+            }
+            if (campos.inputDataCompetencia && item.dataCompetencia !== undefined)
+                campos.inputDataCompetencia.value = item.dataCompetencia;
+            if (campos.inputData && item.data !== undefined)
+                campos.inputData.value = item.data;
+            if (campos.inputTipoDeConta && item.contaBancaria !== undefined)
+                campos.inputTipoDeConta.value = item.contaBancaria;
+            if (campos.inputSituacao && item.situacao !== undefined)
+                campos.inputSituacao.value = item.situacao;
+            if (campos.inputDataVencimento && item.dataVencimento !== undefined)
+                campos.inputDataVencimento.value = item.dataVencimento;
+            if (campos.inputObservacao && item.observacao !== undefined)
+                campos.inputObservacao.value = item.observacao;
+        }
+
+        // Função para obter todos os IDs dos checkboxes selecionados
+        function deleteItensCaixa() {
+            // Coleta os IDs das checkboxes selecionadas usando o map, diretamente em um array
+            const idsSelecionados = $(".select-checkbox:checked")
+                .map(function () {
+                    return $(this).data("id");
+                })
+                .get(); // O .get() converte o resultado em um array simples
+
+            if (idsSelecionados.length === 0) {
+                // Exibe uma mensagem caso nenhuma checkbox tenha sido selecionada
+                mostrarAlerta("Nenhum item selecionado.", 0);
+                return;
+            }
+
+            // Chama a função para excluir os itens, passando os IDs selecionados
+            excluirItemCaixa(idsSelecionados);
+        }
+
+        function excluirItemCaixa(id) {
+            // Envia o array de IDs diretamente
+            const dlt = carregarAjax("excluirDadosBaseCaixa", id); // Passa o array diretamente, sem JSON.stringify
+            dlt.then((e) => {
+                if (e.situacao) {
+                    mostrarAlerta(e.mensagem, 1);
+                    carregardadosCaixa();
+                } else {
+                    mostrarAlerta(e.mensagem, 0);
+                }
+            });
+        }
+
         // Função para criar e abrir o modal
         function criarModal(titulo, conteudo, footer) {
             // Cria o modal usando elementos HTML
@@ -1039,78 +1182,23 @@
             // Inicializa e mostra o modal usando o Bootstrap
             const bootstrapModal = new bootstrap.Modal(modal);
             bootstrapModal.show();
+
+            // Adiciona um evento para remover o modal do DOM quando ele é fechado
+            modal.addEventListener("hidden.bs.modal", () => {
+                modal.remove(); // Remove o modal do DOM
+            });
+
+            // Retorna o modal para possível manipulação adicional (se necessário)
+            return bootstrapModal;
         }
 
         // Função para carregar o modal com base no ID
         async function carregarmodal(idModal) {
             let titulo, conteudo, footer;
-            let textModalCaixa = `
-              <div class="card">
-                <div class="card-body">
-                    <div class="card-header"></div>
-                    <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
-                                <input type="text" name="descricao" class="form-control" id="descricaoRegistroReceita"
-                                    placeholder="Informe a descrição">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="valorRegistroReceita" class="form-label">Valor</label>
-                                <input type="number" name="valor" class="form-control" id="valorRegistroReceita"
-                                    placeholder="Informe o valor" step="0.01">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
-                                <select name="tipo" class="form-select" id="inputTipoRegistroReceita" onchange="carregarCategoriasCaixa(this.value)">
-                                    <option value="" selected>Selecione o tipo</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
-                                <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita" disabled="disabled">
-                                    <option value="" selected>Selecione a categoria</option>
-                                </select>
-                            </div>
-
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="dataRegistroReceita" class="form-label">Data</label>
-                                <input type="date" name="data" class="form-control" id="dataRegistroReceita">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
-                                    Bancária</label>
-                                <select name="contaBancaria" class="form-select"
-                                    id="tipoDeContaBancariaRegistroReceita">
-                                    <option value="" selected>Selecione a conta bancária</option>
-                                    <option value="Caixa">Caixa</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
-                                <select name="situacao" class="form-select" id="situacaoContaRegistroReceita">
-                                    <option value="" selected>Selecione a situação</option>
-                                    <option value="Concluido">Concluido</option>
-                                    <option value="Pendente">Pendente</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Salvar Receita</button>
-                    </form>
-                </div>
-            </div>
-`;
-
             switch (idModal) {
-                case "modalReceita":
+                case "modalCaixa":
                     titulo = "Registro de Receita";
-                    conteudo = textModalCaixa;
+                    conteudo = await loadTemplateForm(idModal);
                     footer = `<i class="bi bi-caret-right"></i>`;
                     await criarModal(titulo, conteudo, footer); // Aguarde a criação do modal antes de continuar
                     await loadInputsCaixa(); // Agora carrega o conteúdo do <select> após o modal estar pronto
@@ -1122,131 +1210,385 @@
             }
         }
 
-        async function loadInputsCaixa() {
-            try {
-                // Obtém os elementos <select>
-                    let inputTipo = document.getElementById('inputTipoRegistroReceita');
-                  // Usar um Set para garantir valores únicos de tipo
-                let tipostipos = new Set();
+        async function loadTemplateForm(d) {
+            let coporTexto;
+            if (d === "cardHeaderRC") {
+                coporTexto = `
+                                <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="inputIdCaixa" class="form-label">ID</label>
+                                <input type="text" name="idRCCaixa" class="form-control" id="inputIdCaixa"
+                                    disabled="disabled" placeholder="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                                <input type="text" name="descricao" class="form-control valid"
+                                    id="descricaoRegistroReceita" placeholder="Informe a descrição" />
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="valorRegistroReceita" class="form-label">Valor</label>
+                                <input type="text" name="valor" class="form-control valid" id="valorRegistroReceita"
+                                    oninput="transformaInputReal(this)" placeholder="R$ 0,00" step="0.01" min="0.01"
+                                    max="999999.99" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                                <select name="tipo" class="form-select valid" id="inputTipoRegistroReceita"
+                                    onchange="carregarCategoriasCaixa(this.value)">
+                                    <option value="" selected>Selecione o tipo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="inputCategoriaRegistroReceita" class="form-label ">Categoria</label>
+                                <select name="categoria" class="form-select valid" id="inputCategoriaRegistroReceita"
+                                    disabled="disabled">
+                                    <option value="" selected>Selecione a categoria</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroCompetencia" class="form-label">Data Compentencia</label>
+                                <input type="date" name="dataCompetencia" class="form-control valid"
+                                    id="dataRegistroCompetencia" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroReceita" class="form-label">Data</label>
+                                <input type="date" name="data" class="form-control valid" id="dataRegistroReceita" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
+                                    Bancária</label>
+                                <select name="contaBancaria" class="form-select valid"
+                                    id="tipoDeContaBancariaRegistroReceita">
+                                    <option value="" selected>
+                                        Selecione a conta bancária
+                                    </option>
+                                    <option value="Caixa">Caixa</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                                <select name="situacao" class="form-select valid" id="situacaoContaRegistroReceita">
+                                    <option value="" selected>Selecione a situação</option>
+                                    <option value="Concluido">Concluido</option>
+                                    <option value="Pendente">Pendente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dataVencimentoRegistroReceita" class="form-label">Data de Vencimento</label>
+                                <input type="date" name="dataVencimento" class="form-control"
+                                    id="dataVencimentoRegistroReceita" />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="observacoesRegistroReceita" class="form-label">Observações</label>
+                                    <textarea name="observacoes" class="form-control" id="observacoesRegistroReceita"
+                                        placeholder="Informe as observações"></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Salvar Registros
+                            </button>
+                    </form>
+            `;
 
-                // Carregar dados para preencher os selects
-                await carregarAjax("carregarTipoCategoria")
-                    .then((a) => {
-                        if (a.situacao) {
-                            // Preencher o <select> com as opções de categoria e tipo
-                            inputTipo.innerHTML = '<option value="" selected>Selecione o tipo</option>';
-
-                            a.dado.forEach((element) => {
-                                // Verificar se o tipo já foi adicionado
-                                if (!tipostipos.has(element.tipo)) {
-                                    // Adicionar opção para Tipo
-                                    tipostipos.add(element.tipo);
-                                    let optionTipo = document.createElement("option");
-                                    optionTipo.text = element.tipo;
-                                    optionTipo.value = element.tipo;
-                                    inputTipo.add(optionTipo);
-
-                                }
-                            });
-                        } else {
-                            console.log(a.mensagem);
-                        }
-                    })
-                    .catch((error) => {
-                        console.log("Erro ao carregar dados:", error);
-                    });
-
-            } catch (error) {
-                console.error("Erro ao carregar modal:", error);
+                document.getElementById("cardHeaderRC").innerHTML = coporTexto;
+            } else if (d === "modalCaixa") {
+                return (coporTexto = `
+                    <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="inputIdCaixa" class="form-label">ID</label>
+                                <input type="text" name="idRCCaixa" class="form-control" id="inputIdCaixa"
+                                    disabled="disabled" placeholder="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                                <input type="text" name="descricao" class="form-control valid"
+                                    id="descricaoRegistroReceita" placeholder="Informe a descrição" />
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="valorRegistroReceita" class="form-label">Valor</label>
+                                <input type="text" name="valor" class="form-control valid" id="valorRegistroReceita"
+                                    oninput="transformaInputReal(this)" placeholder="R$ 0,00" step="0.01" min="0.01"
+                                    max="999999.99" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                                <select name="tipo" class="form-select valid" id="inputTipoRegistroReceita"
+                                    onchange="carregarCategoriasCaixa(this.value)">
+                                    <option value="" selected>Selecione o tipo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita"
+                                    disabled="disabled">
+                                    <option value="" selected>Selecione a categoria</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroCompetencia" class="form-label">Data Compentencia</label>
+                                <input type="date" name="dataCompetencia" class="form-control valid"
+                                    id="dataRegistroCompetencia" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroReceita" class="form-label">Data</label>
+                                <input type="date" name="data" class="form-control valid" id="dataRegistroReceita" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
+                                    Bancária</label>
+                                <select name="contaBancaria" class="form-select"
+                                    id="tipoDeContaBancariaRegistroReceita">
+                                    <option value="" selected>
+                                        Selecione a conta bancária
+                                    </option>
+                                    <option value="Caixa">Caixa</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                                <select name="situacao" class="form-select valid" id="situacaoContaRegistroReceita">
+                                    <option value="" selected>Selecione a situação</option>
+                                    <option value="Concluido">Concluido</option>
+                                    <option value="Pendente">Pendente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dataVencimentoRegistroReceita" class="form-label">Data de Vencimento</label>
+                                <input type="date" name="dataVencimento" class="form-control"
+                                    id="dataVencimentoRegistroReceita" />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="observacoesRegistroReceita" class="form-label">Observações</label>
+                                    <textarea name="observacoes" class="form-control" id="observacoesRegistroReceita"
+                                        placeholder="Informe as observações"></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Salvar Registros
+                            </button>
+                    </form>
+            `);
             }
         }
+        // Função para configurar o MutationObserver
+        // function observeForInputTipoRegistroReceita() {
+        //     const observer = new MutationObserver((mutationsList, observer) => {
+        //         // Itera sobre as mutações observadas
+        //         for (const mutation of mutationsList) {
+        //             if (mutation.type === 'childList') {
+        //                 // Tenta buscar o elemento novamente
+        //                 const inputTipo = document.getElementById("inputTipoRegistroReceita");
 
-        async function carregarCategoriasCaixa(tipoSelecionado) {
-            tipoSelecionado?"":inputCategoriaRegistroReceita.disabled = true;
-    try {
-        // Obtenha o elemento do select onde as categorias serão adicionadas
-        let inputCategoria = document.getElementById('inputCategoriaRegistroReceita');
-        let tiposCategorias = new Set(); // Usado para verificar categorias já adicionadas
+        //                 if (inputTipo) {
+        //                     console.log("Elemento encontrado:", inputTipo.value);
+        //                     // Adiciona o event listener ao elemento assim que ele estiver no DOM
+        //                     // inputTipo.addEventListener("change", loadInputsCaixa(inputTipo.value));
+        //                     setTimeout(() => {
+        //                         loadInputsCaixa(inputTipo.value)
+        //                     }, 5000);
 
-        // Limpa o select antes de carregar as novas opções
-        inputCategoria.innerHTML = '<option value="" selected>Selecione o tipo</option>';
+        //                     // Interrompe a observação, pois o elemento foi encontrado e configurado
+        //                     observer.disconnect();
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     });
 
-        // Carrega as categorias através do AJAX
-        const response = await carregarAjax("carregarTipoCategoria");
-        
-        if (response.situacao) {
-            response.dado.forEach((element) => {
-                // Verifica se a categoria é do tipo selecionado (Entrada ou Saída)
-                if (element.tipo === tipoSelecionado && !tiposCategorias.has(element.categoria)) {
-                    // Adiciona a categoria ao conjunto para evitar duplicados
-                    tiposCategorias.add(element.categoria);
+        //     // Define o alvo da observação: o nó raiz do documento
+        //     observer.observe(document.body, { childList: true, subtree: true });
+        // }
 
-                    // Cria uma nova opção para o select e adiciona ao select
-                    let optionTipo = document.createElement("option");
-                    optionTipo.text = element.categoria;
-                    optionTipo.value = element.categoria;
-                    inputCategoria.appendChild(optionTipo);
-                    inputCategoriaRegistroReceita.disabled = false;
+        // // Inicia o observer
+        // observeForInputTipoRegistroReceita();
+
+
+
+        async function loadInputsCaixa(categoria) {
+            try {
+                const inputTipo = document.getElementById("inputTipoRegistroReceita");
+                const uniqueTipos = new Set();
+                let response;
+
+                // Limpa as opções de seleção existentes para recarregar
+                inputTipo.innerHTML =
+                    '<option value="" selected>Selecione o tipo</option>';
+                if (categoria) {
+                    response = await carregarAjax("carregarTipoCategoria", categoria);
+                } else {
+                    response = await carregarAjax("carregarTipoCategoria");
                 }
-            });
-        } else {
-            console.log(response.mensagem);
-        }
-    } catch (error) {
-        console.log("Erro ao carregar dados:", error);
-    }
-}
 
-        // Função para adicionar opção vazia
-        function adicionaOpcaoVazia(select) {
+
+                if (response.situacao) {
+                    response.dado.forEach((element) => {
+                        if (!uniqueTipos.has(element.tipo)) {
+                            uniqueTipos.add(element.tipo);
+                            const optionTipo = document.createElement("option");
+                            optionTipo.text = element.tipo;
+                            optionTipo.value = element.tipo;
+                            inputTipo.add(optionTipo);
+                        }
+                    });
+                } else {
+                    console.log(response.mensagem);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar os dados:", error);
+            }
+        }
+        async function carregarCategoriasCaixa(tipoSelecionado) {
+            tipoSelecionado ? "" : (inputCategoriaRegistroReceita.disabled = true);
+            try {
+                // Obtenha o elemento do select onde as categorias serão adicionadas
+                let inputCategoria = document.getElementById(
+                    "inputCategoriaRegistroReceita"
+                );
+                let tiposCategorias = new Set(); // Usado para verificar categorias já adicionadas
+                inputCategoria.innerHTML = "";
+                // Limpa o select antes de carregar as novas opções
+                inputCategoria.innerHTML =
+                    '<option value="" selected>Selecione o tipo</option>';
+                // Carrega as categorias através do AJAX
+                const response = await carregarAjax("carregarTipoCategoria");
+
+                if (response.situacao) {
+                    response.dado.forEach((element) => {
+                        // Verifica se a categoria é do tipo selecionado (Entrada ou Saída)
+                        if (
+                            element.tipo === tipoSelecionado &&
+                            !tiposCategorias.has(element.categoria)
+                        ) {
+                            // Adiciona a categoria ao conjunto para evitar duplicados
+                            tiposCategorias.add(element.categoria);
+
+                            // Cria uma nova opção para o select e adiciona ao select
+                            let optionTipo = document.createElement("option");
+                            optionTipo.text = element.categoria;
+                            optionTipo.value = element.categoria;
+                            inputCategoria.appendChild(optionTipo);
+                            inputCategoriaRegistroReceita.disabled = false;
+                        }
+                    });
+                } else {
+                    console.log(response.mensagem);
+                }
+            } catch (error) {
+                console.log("Erro ao carregar dados:", error);
+            }
+        }
+        function adicionarOpcaoVazia(select) {
             if (select) {
                 const option = document.createElement("option");
-                option.text = "";
+                option.text = "Selecione";
                 option.value = "";
-                select.add(option);
+                select.prepend(option); // Adiciona no início do select
             } else {
-                console.error("Elemento select não encontrado para adicionar opção vazia.");
+                console.error(
+                    "Elemento select não encontrado para adicionar opção vazia."
+                );
             }
         }
-        async function salvarformRegistroCaixa(e) {
-            e.preventDefault(); // Previne o envio padrão do formulário
 
-            const formulario = document.getElementById('formCaixa');
+        // Função para salvar o registro de caixa
+        async function salvarformRegistroCaixa(event) {
+            event.preventDefault(); // Previne o envio padrão do formulário
+
+            const formulario = document.getElementById("formCaixa");
+            const elementosValidar = Array.from(
+                formulario.querySelectorAll(".valid")
+            );
+            // Validação do formulário
+            if (!validarFormulario(elementosValidar)) {
+                console.log(
+                    "A validação falhou. Preencha todos os campos obrigatórios."
+                );
+                return;
+            }
+
+            // Criação do objeto FormData e obtenção dos valores de texto dos selects
             const formData = new FormData(formulario);
-            // Obtendo os valores de texto dos elementos select
-            const categoriaText = formulario.querySelector('[name="tipo"] option:checked').textContent;
-            const tipoText = formulario.querySelector('[name="categoria"] option:checked').textContent;
-            const situacaoText = formulario.querySelector('[name="situacao"] option:checked').textContent;
-            const contaText = formulario.querySelector('[name="contaBancaria"] option:checked').textContent;
-
+            const categoriaText =
+                formulario.querySelector('[name="categoria"] option:checked')
+                    ?.textContent || "";
+            const tipoText =
+                formulario.querySelector('[name="tipo"] option:checked')
+                    ?.textContent || "";
+            const situacaoText =
+                formulario.querySelector('[name="situacao"] option:checked')
+                    ?.textContent || "";
+            const contaText =
+                formulario.querySelector('[name="contaBancaria"] option:checked')
+                    ?.textContent || "";
+            let id = document.getElementById("inputIdCaixa");
+            id ? id.value : "";
             // Extrai os valores dos campos do formulário
             const dados = {
-                data: formData.get('data'),
-                valor: parseFloat(formData.get('valor')),
+                idRegistro: id.value,
+                valor: formData.get("valor"),
                 categoria: categoriaText,
                 tipo: tipoText,
                 situacao: situacaoText,
                 conta: contaText,
-                descricao: formData.get('descricao')
+                descricao: formData.get("descricao"),
+                observacao: formData.get("observacoes"),
+                data: formData.get("data"),
+                dataVencimento: formData.get("dataVencimento"),
+                dataCompetencia: formData.get("dataCompetencia"),
             };
-            const a = carregarAjax(
-                "sRC",
-                JSON.stringify(dados)
-            );
+            console.log("Dados para Envio:", JSON.stringify(dados));
 
-            a.then((response) => {
+            try {
+                const response = await carregarAjax("sRC", JSON.stringify(dados));
                 if (response.situacao) {
                     mostrarAlerta(response.mensagem, 1);
                     carregardadosCaixa();
                     formulario.reset();
-
                 } else {
                     mostrarAlerta(response.mensagem, 2);
                 }
-            })
+            } catch (error) {
+                console.error("Erro ao salvar o registro:", error);
+            }
         }
 
+        // Função de validação do formulário
+        function validarFormulario(elementos) {
+            let validacaoFalhou = false;
 
+            elementos.forEach((element) => {
+                if (element && element.classList.contains("valid")) {
+                    // Verifica se o elemento é válido
+                    if (!element.value || !element.value.trim()) {
+                        // Verifica se o valor está vazio ou apenas com espaços
+                        element.classList.add("is-invalid");
+                        element.classList.remove("is-valid");
+                        validacaoFalhou = true;
+                    } else {
+                        element.classList.remove("is-invalid");
+                        element.classList.add("is-valid");
+                    }
+                }
+            });
+
+            return !validacaoFalhou; // Retorna true se a validação passou, false se falhou
+        }
     </script>
     <script>
         carregarPagina("template_login");
