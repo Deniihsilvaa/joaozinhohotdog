@@ -238,77 +238,39 @@
     </template>
     <template id="template_Dashboard">
         <div class="container-xxl">
-            <h1>DRE - Demonstração de Resultado do Exercício</h1>
-            <table id="dreTable">
-                <tr class="section-title">
-                    <td colspan="2">Receita Operacional Bruta</td>
-                </tr>
-                <tr>
-                    <td>Receita de Vendas</td>
-                    <td>
-                        <input type="number" id="receitaVendas" value="0" oninput="calculateDRE()" />
-                    </td>
-                </tr>
+            <h1>Metricas Financeiras</h1>
+            <div class="card-body">
+                <div class="card-header" id="cardHeaderDashboard"></div>
+                <table class="table table-responsive table-hover mt-3" id="tableDashboard">
+                    <thead>
+                        <tr>
+                            <th scope="col">Mes</th>
+                            <th scope="col">Janeiro</th>
+                            <th scope="col">Fevereiro</th>
+                            <th scope="col">Marco</th>
+                            <th scope="col">Abril</th>
+                            <th scope="col">Maio</th>
+                            <th scope="col">Junho</th>
+                            <th scope="col">Jujho</th>
+                            <th scope="col">Agosto</th>
+                            <th scope="col">Setembro</th>
+                            <th scope="col">Outubro</th>
+                            <th scope="col">Novembro</th>
+                            <th scope="col">Dezembro</th>
+                            <th scope="col">Descrição</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Os dados da tabela serão preenchidos aqui -->
+                    </tbody>
+                </table>
+            </div>
 
-                <tr class="section-title">
-                    <td colspan="2">(-) Deduções</td>
-                </tr>
-                <tr>
-                    <td>Impostos sobre Vendas</td>
-                    <td>
-                        <input type="number" id="impostos" value="0" oninput="calculateDRE()" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>Devoluções</td>
-                    <td>
-                        <input type="number" id="devolucoes" value="0" oninput="calculateDRE()" />
-                    </td>
-                </tr>
-
-                <tr class="section-title">
-                    <td colspan="2">(-) Custo dos Produtos Vendidos (CPV)</td>
-                </tr>
-                <tr>
-                    <td>CPV</td>
-                    <td>
-                        <input type="number" id="cpv" value="0" oninput="calculateDRE()" />
-                    </td>
-                </tr>
-
-                <tr class="section-title">
-                    <td colspan="2">Despesas Operacionais</td>
-                </tr>
-                <tr>
-                    <td>Despesas Administrativas</td>
-                    <td>
-                        <input type="number" id="despesasAdm" value="0" oninput="calculateDRE()" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>Despesas Comerciais</td>
-                    <td>
-                        <input type="number" id="despesasCom" value="0" oninput="calculateDRE()" />
-                    </td>
-                </tr>
-
-                <tr class="section-title">
-                    <td colspan="2">Resultado</td>
-                </tr>
-                <tr>
-                    <td>Lucro Bruto</td>
-                    <td id="lucroBruto">0</td>
-                </tr>
-                <tr>
-                    <td>Lucro Operacional</td>
-                    <td id="lucroOperacional">0</td>
-                </tr>
-                <tr>
-                    <td>Lucro Líquido</td>
-                    <td id="lucroLiquido">0</td>
-                </tr>
-            </table>
         </div>
+    </template>
+    <template id="template_Metrica">
+
     </template>
     <!-- Spinner Overlay -->
     <div id="spinner-overlay" class="spinner-overlay d-none">
@@ -647,10 +609,18 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_caixa')">Caixa</a></li>
                                     <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_RC')">Registro de Caixa</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_Dashboard')">Metricas</a></li>
                                 </ul>
                             </li>
                             <!-- Outros Dropdowns... -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Analise
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_Dashboard')">Metricas</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </div>
                     <a class="navbar-brand text-white" onclick="logout()" href="#">Sair</a>

@@ -1,1 +1,1515 @@
-<div class="card">teste</div>
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="title" content="Gestão de Financeira" />
+    <meta name="description" content="Sistema de gestão financeira" />
+    <meta name="author" content="Denilson Silva" />
+    <meta name="keywords" content="gestao, financas, financeiro" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/scroller/2.4.3/css/scroller.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lafeber/world-flags-sprite/stylesheets/flags32-both.css" />
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- JSZip (necessário para exportação de arquivos Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- pdfMake (necessário para exportação de arquivos PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/scroller/2.4.3/js/scroller.dataTables.min.js"></script>
+
+    <!-- Botões de exportação do DataTables -->
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js"></script>
+</head>
+
+<body>
+    <div id="idIniti"></div>
+    <template id="template_home">
+        <div class="container-xxl">
+            <div class="row p-sm-2 my-5 gap-3">
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina(this.id)">
+                    <span class="spanHome">Despesas</span>
+                </div>
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina('template_RC')">
+                    <span class="spanHome">Registro de Caixa</span>
+                </div>
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina('template_caixa')">
+                    <span class="spanHome">Caixa</span>
+                </div>
+                <div class="col-sm btn card w-25 shadow-lg text-bg-info" onclick="carregarPagina('template_Dashboard')">
+                    <span class="spanHome">Planejamento</span>
+                </div>
+            </div>
+        </div>
+        <div id="modalCaixa"></div>
+    </template>
+
+
+    <!-- Dados Seguros -->
+    <template id="template_RC">
+        <div class="container-xxl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header" id="cardHeaderRC">
+                        <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="inputIdCaixa" class="form-label">ID</label>
+                                    <input type="text" name="idRCCaixa" class="form-control" id="inputIdCaixa"
+                                        disabled="disabled" placeholder="0">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                                    <input type="text" name="descricao" class="form-control valid"
+                                        id="descricaoRegistroReceita" placeholder="Informe a descrição" />
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="valorRegistroReceita" class="form-label">Valor</label>
+                                    <input type="text" name="valor" class="form-control valid" id="valorRegistroReceita"
+                                        oninput="transformaInputReal(this)" placeholder="R$ 0,00" step="0.01" min="0.01"
+                                        max="999999.99" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                                    <select name="tipo" class="form-select valid" id="inputTipoRegistroReceita"
+                                        onchange="carregarCategoriasCaixa(this.value)">
+                                        <option value="" selected>Selecione o tipo</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="inputCategoriaRegistroReceita" class="form-label ">Categoria</label>
+                                    <select name="categoria" class="form-select valid" id="inputCategoriaRegistroReceita"
+                                        disabled="disabled">
+                                        <option value="" selected>Selecione a categoria</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="dataRegistroCompetencia" class="form-label">Data Compentencia</label>
+                                    <input type="date" name="dataCompetencia" class="form-control valid"
+                                        id="dataRegistroCompetencia" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="dataRegistroReceita" class="form-label">Data</label>
+                                    <input type="date" name="data" class="form-control valid" id="dataRegistroReceita" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
+                                        Bancária</label>
+                                    <select name="contaBancaria" class="form-select valid"
+                                        id="tipoDeContaBancariaRegistroReceita">
+                                        <option value="" selected>
+                                            Selecione a conta bancária
+                                        </option>
+                                        <option value="Caixa">Caixa</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                                    <select name="situacao" class="form-select valid" id="situacaoContaRegistroReceita">
+                                        <option value="" selected>Selecione a situação</option>
+                                        <option value="Concluido">Concluido</option>
+                                        <option value="Pendente">Pendente</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="dataVencimentoRegistroReceita" class="form-label">Data de Vencimento</label>
+                                    <input type="date" name="dataVencimento" class="form-control"
+                                        id="dataVencimentoRegistroReceita" />
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="observacoesRegistroReceita" class="form-label">Observações</label>
+                                        <textarea name="observacoes" class="form-control" id="observacoesRegistroReceita"
+                                            placeholder="Informe as observações"></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    Salvar Registros
+                                </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="module">
+        import { firebaseConfig } from './firebase-config.js'; // Ou outro arquivo
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        
+
+        const apps = initializeApp(firebaseConfig);
+        const dbs = getFirestore(apps);
+
+        // O restante do código
+
+            
+            async function salvarformRegistroCaixa(event) {
+                event.preventDefault(); // Previne o comportamento padrão do formulário
+        
+                // Captura os valores do formulário
+                const descricao = document.getElementById("descricaoRegistroReceita").value;
+                const valor = parseFloat(document.getElementById("valorRegistroReceita").value.replace(/[R$\s,]/g, "")); // Remove símbolos e converte para número
+                const tipo = document.getElementById("inputTipoRegistroReceita").value;
+                const categoria = document.getElementById("inputCategoriaRegistroReceita").value;
+                const dataCompetencia = document.getElementById("dataRegistroCompetencia").value;
+                const data = document.getElementById("dataRegistroReceita").value;
+                const contaBancaria = document.getElementById("tipoDeContaBancariaRegistroReceita").value;
+                const situacao = document.getElementById("situacaoContaRegistroReceita").value;
+                const dataVencimento = document.getElementById("dataVencimentoRegistroReceita").value;
+                const observacoes = document.getElementById("observacoesRegistroReceita").value;
+        
+                // Valida os campos obrigatórios
+                // if (!descricao || isNaN(valor) || !tipo || !categoria || !data) {
+                //     mostrarAlerta("Preencha todos os campos obrigatórios!", 2);
+                //     return;
+                // }
+        
+                // Cria o objeto para salvar
+                const registro = {
+                    descricao,
+                    valor,
+                    tipo,
+                    categoria,
+                    dataCompetencia: dataCompetencia || null,
+                    data,
+                    contaBancaria,
+                    situacao,
+                    dataVencimento: dataVencimento || null,
+                    observacoes: observacoes || "",
+                    criadoEm: new Date().toISOString() // Marca a data/hora atual
+                };
+                console.log(registro);
+                try {
+                    // Salva o registro no Firestore
+                    await addDoc(collection(dbs, "BaseCaixa"), registro);
+                    mostrarAlerta("Registro salvo com sucesso!", 1);
+        
+                    // Reseta o formulário após o salvamento
+                    document.getElementById("formCaixa").reset();
+                } catch (error) {
+                    console.error("Erro ao salvar registro:", error.message);
+                    mostrarAlerta("Erro ao salvar o registro. Tente novamente.", 2);
+                }
+            }
+        </script>
+        
+        
+        
+    </template>
+    <template id="template_login">
+        <div class="card">
+            <div class="login-body">
+                <h5 class="login-head">Login</h5>
+                <form id="form_login">
+                    <div class="mb-3 mt-3 jus">
+                        <label for="login_Login" class="form-label">E-mail</label>
+                        <input type="email" class="form-control Flog" id="login_Login"
+                            placeholder="Digite seu e-mail" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_Login" class="form-label">Senha</label>
+                        <input type="password" class="form-control Flog" id="password_Login"
+                            placeholder="Digite sua senha" />
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" id="submitLogin" class="btn btn-primary">
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    <script type="module">
+// Script de inicialização
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+export const firebaseConfig = {
+    apiKey: "AIzaSyBFKRCRAzBUUw6FVx1C3E07RZqlZFR9xpU",
+    authDomain: "sistemagestaojoaozinho.firebaseapp.com",
+    projectId: "sistemagestaojoaozinho",
+    storageBucket: "sistemagestaojoaozinho.firebasestorage.app",
+    messagingSenderId: "288554455931",
+    appId: "1:288554455931:web:eeb382d14148bf961123de",
+    measurementId: "G-BSQLE6FQEJ",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// O resto do código para login
+
+        document.getElementById("submitLogin").addEventListener("click", async () => {
+            console.log("Clicou no botão de login");
+            if (document.getElementById("login_Login").value && document.getElementById("password_Login").value) {
+                const email = document.getElementById("login_Login").value;
+                const password = document.getElementById("password_Login").value;
+
+                try {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    console.log("Login bem-sucedido:", user);
+
+                    // Salva informações do usuário no LocalStorage
+                    localStorage.setItem("UserGroup", JSON.stringify({ email: user.email, uid: user.uid }));
+
+                    // Mostra alerta de sucesso
+                    mostrarAlerta("Login bem-sucedido!", 1);
+
+                    // Redireciona para o template inicial
+                    template_init();
+                } catch (error) {
+                    console.error("Erro no login:", error.message);
+                    mostrarAlerta("Erro ao fazer login. Verifique suas credenciais.", 2);
+                }
+            }
+        });
+    </script>
+    </template>
+
+    <!-- Dados Seguros -->
+    <!-- Spinner Overlay -->
+    <div id="spinner-overlay" class="spinner-overlay d-none">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <!-- Alerta -->
+    <div id="liveAlertPlaceholder"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <script id="MetodoPost">
+        let urlAjax =
+            "https://script.google.com/macros/s/AKfycbxLPOwcdZ0cnnvzlBct0bJhJOKZTkfM-AI5avuer6tNs4TosQHy3DUU4roRD0Z934sY/exec";
+
+        $("#accordion").accordion({
+            active: false,
+            collapsible: true,
+            heightStyle: "content",
+            icons: {
+                header: "ui-icon-circle-plus", // Ícone para cabeçalhos fechados
+                activeHeader: "ui-icon-circle-minus", // Ícone para cabeçalhos abertos
+            },
+        });
+
+        function atualizarBreadcrumb(pagina) {
+            const breadcrumbPage = document.getElementById("breadcrumbPage");
+            breadcrumbPage.textContent =
+                pagina.charAt(0).toUpperCase() + pagina.slice(1);
+        }
+        // funcao de teste
+        // Torna a função assíncrona
+        async function carregarPagina(pagina) {
+            try {
+                let dadosLocal = localStorage.getItem("UserGroup");
+                // Verifica se o usuário está autenticado
+                if (dadosLocal) {
+                    const userGroup = JSON.parse(dadosLocal); // Supondo que você armazene um objeto JSON
+                    if (userGroup && userGroup.login_Login) {
+                        // Se o ID do cliente existir, redireciona para a página home ou outra que não seja template_login
+                        if (pagina === "template_login") {
+                            template_init();
+
+                            return;
+                        }
+                    }
+                }
+
+                let destino = pagina === "template_login" ? "idIniti" : "conteudo";
+
+                if (pagina !== "template_login") {
+                    atualizarBreadcrumb(pagina);
+                }
+
+                // Espera até que o template seja inserido
+                const template = await inserirTemplate('template_RC', 'idIniti');
+                esconderBarralateral();
+                console.log('pAgina',pagina);
+                // Agora, execute as outras ações após o template ser carregado
+                switch (pagina) {
+                    case "template_login":
+                        break;
+                    case "clientes":
+                        break;
+                    case "fornecedores":
+                        break;
+                    case "produtos":
+                        break;
+                    case "notas_entrada":
+                        break;
+                    case "notas_saida":
+                        break;
+                    case "documentos_nfe":
+                        break;
+                    case "template_home":
+                        break;
+                    case "request_Nfe":
+                        request_Nfe();
+                        break;
+                    case "contas_a_pagar":
+                        // contas_a_pagar();
+                        break;
+                    case "template_caixa":
+                        carregarTemplateCaixa();
+                        break;
+                    case "template_RC":
+                        //loadTemplateForm("cardHeaderRC");
+                        loadInputsCaixa();
+                        break;
+                    case "template_Dashboard":
+                        break;
+                    default:
+                        document.getElementById(
+                            "conteudo"
+                        ).innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
+                        break;
+                }
+            } catch (error) {
+                document.getElementById(
+                    "conteudo"
+                ).innerHTML = `<h1>Conteúdo ${pagina} não encontrado</h1>`;
+                console.error("Error:", error);
+            }
+        }
+        const removerClasseElemnto = (elemento, classe) => {
+            return elemento.classList.remove(classe);
+        };
+        const adicionarClasseElemento = (elemento, classe) => {
+            return elemento.classList.add(classe);
+        };
+        // Torna inserirTemplate assíncrona, se ainda não for
+        async function inserirTemplate(templateId, destino) {
+            try {
+                const formularioID = document.getElementById(templateId);
+                const paginanova = document.getElementById(destino);
+
+                // Cria um efeito de desvanecimento
+
+                removerClasseElemnto(paginanova, "show"); // Remove a classe de mostrar se já estiver visível
+                // adiciona a classe de desvanecimento se não estiver visível
+                adicionarClasseElemento(paginanova, "fade"); // Adiciona a classe de desvanecimento
+
+                // Aguarda a animação de desvanecimento terminar
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        paginanova.innerHTML = ""; // Limpa o conteúdo existente
+                        const clone = document.importNode(formularioID.content, true);
+                        paginanova.appendChild(clone);
+                        paginanova.classList.add("show"); // Adiciona a classe para mostrar após inserir o novo conteúdo
+                        resolve(formularioID); // Resolve a promessa após inserir o conteúdo
+                    }, 500); // O tempo deve corresponder à duração da transição CSS
+                });
+            } catch (error) {
+                console.error("Erro ao inserir template:", error);
+                return null;
+            }
+        }
+
+        // fechamanto de teste
+        function esconderNavbarDropdown() {
+            const navbarNavDropdown = bootstrap.Collapse.getInstance(
+                document.getElementById("navbarNavDropdown")
+            );
+            if (navbarNavDropdown) {
+                navbarNavDropdown.hide();
+            }
+        }
+        function carregarAjax(qualFuncao, dados) {
+            mostrarSpinner();
+            return new Promise((resolve, reject) => {
+                // Variável para armazenar o tempo de início
+                const startTime = Date.now();
+
+                $.ajax({
+                    type: "POST",
+                    url: urlAjax,
+                    data: { qualFuncao: qualFuncao, dados: dados },
+                    dataType: "json",
+                    success: function (response) {
+                        // Calcula o tempo gasto na requisição
+                        const elapsedTime = Date.now() - startTime;
+                        const remainingTime = 1000 - elapsedTime; // Calcula o tempo restante para completar 1 segundo
+
+                        // Se o tempo restante for positivo, espera antes de resolver
+                        if (remainingTime > 0) {
+                            setTimeout(() => resolve(response), remainingTime);
+                        } else {
+                            resolve(response);
+                            esconderSpinner();
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Erro na requisição Ajax:", error);
+                        reject(error);
+                    },
+                    complete: function () { },
+                });
+            });
+        }
+    </script>
+    <script id="function aux">
+        // Função para mostrar o spinner
+        function mostrarSpinner() {
+            document.getElementById("spinner-overlay").classList.remove("d-none");
+        }
+
+        // Função para esconder o spinner
+        function esconderSpinner() {
+            document.getElementById("spinner-overlay").classList.add("d-none");
+        }
+        function mostrarBarralateral() {
+            const bar = document.getElementById("meunoLateral");
+            const conteudoLateral = document.getElementById("conteudoLateral");
+            bar.classList.remove("d-none");
+            bar.classList.add("d-block");
+            conteudoLateral.innerHTML = ``;
+        }
+        function esconderBarralateral() {
+            const bar = document.getElementById("meunoLateral");
+            const conteudoLateral = document.getElementById("conteudoLateral");
+            bar.classList.remove("d-block");
+            bar.classList.add("d-none");
+            conteudoLateral.innerHTML = ``;
+        }
+
+        function executarDropdown() {
+            const tabElms = document.querySelectorAll('a[data-bs-toggle="list"]');
+            tabElms.forEach((tabElm) => {
+                tabElm.addEventListener("shown.bs.tab", (event) => {
+                    event.target; // newly activated tab
+                    event.relatedTarget; // previous active tab
+                });
+            });
+        }
+        function mostrarAlerta(mensagem, tipo) {
+            const alertPlaceholder = document.getElementById(
+                "liveAlertPlaceholder"
+            );
+
+            // Criando o overlay do alerta
+            const alertOverlay = document.createElement("div");
+            alertOverlay.className = "alert-overlay";
+
+            switch (tipo) {
+                case 1:
+                    var classe = "alert alert-success";
+                    break;
+                case 2:
+                    var classe = "alert alert-danger";
+                    break;
+                case 3:
+                    var classe = "alert alert-warning";
+                    break;
+                default:
+                    var classe = "alert alert-info";
+                    break;
+            }
+
+            // Criando o conteúdo do alerta
+            const alertContent = `
+          <div class="${classe}">
+            <div class="header">
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="fecharAlerta()"> </button>
+            </div>
+            <div class="alert-text">
+              <p>${mensagem}</p>
+            </div>
+          </div>
+        `;
+
+            // Inserindo o conteúdo no overlay
+            alertOverlay.innerHTML = alertContent;
+
+            // Inserindo o alerta na página
+            alertPlaceholder.appendChild(alertOverlay);
+        }
+
+        function fecharAlerta() {
+            const alertPlaceholder = document.getElementById(
+                "liveAlertPlaceholder"
+            );
+            alertPlaceholder.innerHTML = ""; // Remove o alerta
+        }
+
+        function transformaInputReal(input) {
+            // Remove todos os caracteres que não são números, exceto a vírgula e ponto
+            let valor = input.value.replace(/\D/g, "");
+
+            // Formatação do valor como moeda
+            valor = (valor / 100).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+            });
+
+            // Define o valor formatado no campo de entrada
+            input.value = valor;
+        }
+
+        function transformaReal(valor) {
+            // Converte o valor para string e remove "R$", espaços, e vírgulas
+            valor = valor.toString().replace(/[R$\s,]/g, "");
+
+            // Converte para número, garantindo que valores negativos sejam tratados
+            const numero = parseFloat(valor) || 0;
+
+            // Retorna o valor no formato de Real
+            return numero.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+            });
+        }
+    </script>
+    <script id="controlAuntentication">
+        function template_init() {
+            const app = document.getElementById("idIniti");
+
+            if (!app) {
+                console.error("Elemento 'idIniti' não encontrado");
+                return;
+            }
+
+            // Substitui o conteúdo da div com o HTML desejado
+            app.innerHTML = `
+        <div id="App">
+            <nav class="navbar navbar-expand-lg shadow">
+                <div class="container-fluid">
+                    <a class="navbar-brand text-white" href="#" onclick="carregarPagina('template_home')">Home</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav">
+                            <!-- Cadastro Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Cadastro
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('clientes')">Clientes</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('fornecedores')">Fornecedores</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('produtos')">Produtos</a></li>
+                                </ul>
+                            </li>
+                            <!-- Financeiro Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Financeiro
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_caixa')">Caixa</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_RC')">Registro de Caixa</a></li>
+                                </ul>
+                            </li>
+                            <!-- Outros Dropdowns... -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Analise
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="carregarPagina('template_Dashboard')">Metricas</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <a class="navbar-brand text-white" onclick="logout()" href="#">Sair</a>
+                    
+                </div>
+            </nav>
+            <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
+                <ol class="breadcrumb" id="breadcrumbNav">
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="carregarPagina('template_home')">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" id="breadcrumbPage"></li>
+                </ol>
+            </nav>
+            <div id="meunoLateral" class="d-none">
+                <span id="barMenu"> Menu</span>
+                <div id="conteudoLateral">
+                    //conteudo sera esibido aqui
+                </div>
+            </div>
+            <!-- Conteúdo Principal -->
+            <div class="main">
+                    <div id="conteudo"></div>
+                </div>
+            </div>
+            <!-- Rodapé -->
+            <div class="footer">
+                <div class="logo">
+                    <img src="logo.png" alt="Logo" />
+                </div>
+                <div class="footer-text">
+                    <p>
+                        Desenvolvido por Denilson Silva - Sistema de gestão financeira © 2024 - Todos os direitos reservados
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+
+            // Exibir a div com a classe "App"
+            const appDiv = document.querySelector(".App");
+            if (appDiv) {
+                appDiv.style.display = "block";
+            }
+            carregarPagina("template_home");
+        }
+        function logout() {
+            if (confirm("Você realmente deseja sair?")) {
+                localStorage.removeItem("UserGroup");
+                mostrarAlerta("Logout realizado com sucesso!", 1);
+                carregarPagina("template_login");
+            }
+        }
+    </script>
+    <script id="template-caixa">
+        function barRight() {
+            try {
+                mostrarBarralateral();
+                const menu = document.getElementById("conteudoLateral");
+
+                //adicionar botoes
+                menu.innerHTML = `
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="d-grid gap-2">
+            <button type="button" class="btn btn-primary" onclick="carregarmodal(this.id)" id="modalCaixa">Registros de Caixa</button>
+        </div>
+    </div>
+            `;
+            } catch (error) {
+                console.error("Erro ao carregar template caixa:", error);
+            }
+        }
+        function definirDatasIniciais() {
+            const hoje = new Date();
+            const primeiroDiaDoMes = new Date(
+                hoje.getFullYear(),
+                hoje.getMonth(),
+                1
+            );
+            const ultimoDiaDoMes = new Date(
+                hoje.getFullYear(),
+                hoje.getMonth() + 1,
+                0
+            );
+
+            const dataInicioInput = document.getElementById("dataIniciofmrCaixa");
+            const dataFimInput = document.getElementById("dataFimfmrCaixa");
+
+            // Formata a data para o formato YYYY-MM-DD
+            dataInicioInput.value = primeiroDiaDoMes.toISOString().split("T")[0];
+            dataFimInput.value = ultimoDiaDoMes.toISOString().split("T")[0];
+        }
+
+        // Chama a função quando o template é inserido
+        async function carregarTemplateCaixa() {
+            try {
+                await carregardadosCaixa();
+                barRight();
+                definirDatasIniciais();
+            } catch (error) {
+                console.error("Erro ao carregar template caixa:", error);
+            } finally {
+            }
+        }
+
+        // Esta função deve ser chamada após o template ser inserido
+        async function carregardadosCaixa(filtrar) {
+            mostrarSpinner();
+            try {
+                // Verifica se os elementos existem antes de acessar .value
+                let dataInicioElement = document.getElementById("dataIniciofmrCaixa");
+                let dataFimElement = document.getElementById("dataFimfmrCaixa");
+
+                let dataInicio = dataInicioElement ? dataInicioElement.value : null;
+                let dataFim = dataFimElement ? dataFimElement.value : null;
+
+                const tableBody = document
+                    .getElementById("tableCaixa")
+                    .querySelector("tbody");
+                tableBody.innerHTML = ""; // Limpa a tabela antes de carregar novos dados
+
+                if (!dataInicio || !dataFim) {
+                    mostrarAlerta("Carregando dados Completos", 3);
+                    setTimeout(() => {
+                        fecharAlerta();
+                    }, 2000);
+                    esconderSpinner();
+                } else {
+                    mostrarAlerta(`Carregando filtros ${dataInicio} e ${dataFim}`, 3);
+                    setTimeout(() => {
+                        fecharAlerta();
+                    }, 2000);
+                    esconderSpinner();
+                }
+                // Chama a função para carregar os dados
+                const dadosCaixa = carregarAjax(
+                    "carregarCaixaDataFiltro",
+                    JSON.stringify({ dataInicio, dataFim })
+                );
+                dadosCaixa
+                    .then((a) => {
+                        if (a.situacao) {
+                            criartabelaCaixa(a.dados, a.caixaAtual, a.sPendete);
+                            document.getElementById(
+                                "spanTotalCaixa"
+                            ).textContent = `Total: R$ ${a.total}`;
+                            document.getElementById(
+                                "spanEntradaCaixa"
+                            ).textContent = `Entrada: R$ ${a.totalEntrada}`;
+                            document.getElementById(
+                                "spanSaidaCaixa"
+                            ).textContent = `Saida: R$ ${a.totalSaida}`;
+                            injetTipo(a.sPendete);
+                        } else {
+                            mostrarAlerta(
+                                "Não foram encontrados dados para as datas informadas.",
+                                2
+                            );
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        mostrarAlerta("Erro ao carregar dados!", 2);
+                    });
+            } catch (error) {
+                console.log("Erro ao carregar dados:", error);
+
+                esconderSpinner();
+            }
+        }
+        function injetTipo(a) {
+            const pendete = document.getElementById("spanPendente");
+            const concluido = document.getElementById("spanConcluido");
+            if (pendete) {
+                pendete.classList.remove("placeholder");
+                pendete.textContent = `Pendente: R$ ${a}`;
+            }
+        }
+        function criartabelaCaixa(dadosCaixa, caixaAtual, a) {
+            const spanEntrada = document.getElementById("spanEntrada");
+            const spanSaida = document.getElementById("spanSaida");
+            const spanTotal = document.getElementById("spanTotal");
+
+            const cores = {
+                Pendente: "#ff5733",
+                Concluido: "#00ff00",
+                Cancelado: "#000000",
+            };
+            let valorEntrada = 0;
+            let valorSaida = 0;
+            let total = 0;
+
+            const $tabela = $("#tableCaixa");
+            $tabela.addClass("table-active");
+            $tabela.empty();
+
+            // Criando o cabeçalho da tabela com uma coluna extra para o checkbox
+            const $thead = $("<thead></thead>");
+            const $linhaCabecalho = $("<tr></tr>");
+            const cabecalhos = [
+                "", // Coluna para checkbox
+                "id",
+                "descricao",
+                "valor",
+                "tipo",
+                "situacao",
+                "data",
+                "caixaAtual",
+                "acao",
+            ];
+
+            cabecalhos.forEach((cabecalho) => {
+                const $th = $("<th></th>").text(cabecalho);
+                $linhaCabecalho.append($th);
+            });
+            $thead.append($linhaCabecalho);
+            $tabela.append($thead);
+
+            // Criando o corpo da tabela
+            const $tbody = $("<tbody></tbody>");
+            dadosCaixa.forEach((item) => {
+                const $linha = $("<tr></tr>");
+
+                // Adicionando o checkbox na primeira coluna
+                const $checkboxCelula = $("<td></td>");
+                const $checkbox = $("<input>")
+                    .attr("type", "checkbox")
+                    .attr("class", "select-checkbox")
+                    .attr("data-id", item.id); // Atribui o ID do item ao checkbox
+                $checkboxCelula.append($checkbox);
+                $linha.append($checkboxCelula);
+
+                // Adiciona as demais colunas
+                cabecalhos.slice(1).forEach((coluna) => {
+                    const $celula = $("<td></td>").text(item[coluna]);
+
+                    if (coluna === "situacao" && cores[item[coluna]]) {
+                        $celula.css("background-color", cores[item[coluna]]);
+                        $celula.css("color", "#fff");
+                    }
+
+                    if (coluna == "valor") {
+                        $celula.text(transformaReal(item[coluna]));
+                    }
+
+                    if (coluna === "tipo") {
+                        if (item[coluna] === "Entrada") {
+                            valorEntrada += parseFloat(item.valor);
+                        } else if (item[coluna] === "Saída") {
+                            valorSaida += parseFloat(item.valor);
+                        }
+                    }
+
+                    if (coluna === "acao") {
+                        $celula.html(`
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn" onclick="excluirItemCaixa(${item.id})">
+                            <div class="bttExcluir">
+                                <img src="8780823.png" id="bttExcluirC" alt="bttExcluirC" />
+                            </div>
+                        </button>
+                            <button type="button" class="btn"
+                            
+                            onclick="carregarmodalEditarCaixa(${item.id})">
+                            <div class="bttEditar">
+                                <img src="../img/pencil_6563650.png" id="bttEditar" alt="bttEditar" />
+                            </div>
+                        </button>
+                    </div>`);
+                    }
+
+                    $linha.append($celula);
+                });
+
+                $tbody.append($linha);
+            });
+
+            $tabela.append($tbody);
+
+            if (spanEntrada) {
+                spanEntrada.classList.remove("placeholder");
+                spanEntrada.id = "spanEntradaCaixa";
+            }
+
+            if (spanSaida) {
+                spanSaida.classList.remove("placeholder");
+                spanSaida.id = "spanSaidaCaixa";
+                spanSaida.innerText = `Total de saída: ${transformaReal(valorSaida)}`;
+            }
+
+            if (spanTotal) {
+                spanTotal.classList.remove("placeholder");
+                spanTotal.id = "spanTotalCaixa";
+                total = valorEntrada - valorSaida;
+            }
+
+            $("#tableCaixa").DataTable({
+                destroy: true,
+                buttons: ["copy", "csv", "excel", "pdf", "print"],
+                paging: true,
+                pageLength: 10,
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "Todos"],
+                ],
+                searching: true,
+                scrollCollapse: false,
+                fixedHeader: true,
+                responsive: true,
+                autofill: true,
+                select: true,
+                info: true,
+                processing: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json",
+                },
+                columnDefs: [
+                    // { targets: [1], visible: false }, // Oculta a coluna de IDs
+                    { targets: [5], orderable: true },
+                ],
+                order: [[5, "desc"]],
+                ordering: true,
+                dom: "Blfrtip",
+                buttons: [
+                    {
+                        extend: "collection",
+                        text: "Exportar",
+                        autoClose: true,
+                        collectionLayout: "dropdown",
+                        className: "custom-html-collection",
+                        buttons: [
+                            "copy",
+                            "csv",
+                            "excel",
+                            "print",
+                            {
+                                extend: "pdfHtml5",
+                                exportOptions: {
+                                    modifier: { search: "applied", order: "applied" },
+                                },
+                                filename: "Extrair Dados",
+                                header: true,
+                                title: "Dados Extraídos",
+                                text: "PDF",
+                            },
+                        ],
+                    },
+                ],
+            });
+        }
+        async function carregarmodalEditarCaixa(id) {
+            carregarmodal("modalCaixa"); // Abre o modal
+
+            // Carrega os dados do servidor de forma eficiente
+            const dadosBuscados = await carregarAjax("carregarCaixaFiltro", id);
+            // console.log("retorno do carregarCaixaFiltro:", dadosBuscados);
+
+            // Verifica se os dados foram carregados com sucesso
+            if (dadosBuscados && dadosBuscados.situacao) {
+                // Preenche os dados do modal sem setTimeout, já que a operação é assíncrona
+                elementeCaixa(dadosBuscados.dados);
+
+                // Definir eventos de "Salvar" e "Cancelar"
+                // configurarEventosBotao();
+            }
+        }
+
+        function configurarEventosBotao() {
+            // Configura o evento de "Salvar"
+            const btnSalvar = document.getElementById("btnSalvarCaixa");
+            btnSalvar.onclick = async () => {
+                const dados = obterDadosFormulario();
+                const salvar = await carregarAjax("sRC", JSON.stringify(dados));
+
+                if (salvar && salvar.situacao) {
+                    document.getElementById("modalEditarCaixa").style.display = "none";
+                    carregarTabelaCaixa();
+                }
+            };
+
+            // Configura o evento de "Cancelar"
+            const btnCancelar = document.getElementById("btnCancelarCaixa");
+            btnCancelar.onclick = () => {
+                document.getElementById("modalEditarCaixa").style.display = "none";
+            };
+        }
+
+        function obterDadosFormulario() {
+            return {
+                id: document.getElementById("inputIdCaixa").value,
+                descricao: document.getElementById("descricaoRegistroReceita").value,
+                valor: document.getElementById("valorRegistroReceita").value,
+                tipo: document.getElementById("inputTipoRegistroReceita").value,
+                data: document.getElementById("inputDataCaixa").value,
+                situacao: document.getElementById("inputSituacaoCaixa").value,
+                dataRegistro: document.getElementById("inputDataRegistroCaixa").value,
+                contaBancaria: document.getElementById("inputContaBancariaCaixa")
+                    .value,
+                dataVencimento: document.getElementById("inputDataVencimentoCaixa")
+                    .value,
+                observacao: document.getElementById("inputObservacaoCaixa").value,
+                dataCompetencia: document.getElementById("inputDataCompetenciaCaixa")
+                    .value,
+            };
+        }
+
+        async function elementeCaixa(dados) {
+            // Acessa o primeiro item do array
+            await loadInputsCaixa();
+            let item = dados[0];
+            // Armazena os elementos do DOM em variáveis para evitar chamadas repetidas
+            const campos = {
+                inputId: document.getElementById("inputIdCaixa"),
+                inputDescricao: document.getElementById("descricaoRegistroReceita"),
+                inputValor: document.getElementById("valorRegistroReceita"),
+                inputTipo: document.getElementById("inputTipoRegistroReceita"),
+                inputCategoria: document.getElementById(
+                    "inputCategoriaRegistroReceita"
+                ),
+                inputDataCompetencia: document.getElementById(
+                    "dataRegistroCompetencia"
+                ),
+                inputData: document.getElementById("dataRegistroReceita"),
+                inputTipoDeConta: document.getElementById(
+                    "tipoDeContaBancariaRegistroReceita"
+                ),
+                inputSituacao: document.getElementById(
+                    "situacaoContaRegistroReceita"
+                ),
+                inputDataVencimento: document.getElementById(
+                    "dataVencimentoRegistroReceita"
+                ),
+                inputObservacao: document.getElementById(
+                    "observacoesRegistroReceita"
+                ),
+            };
+            // Preenche os campos se eles existirem e se o valor do item estiver disponível
+            if (campos.inputId && item.id !== undefined)
+                campos.inputId.value = item.id;
+            if (campos.inputDescricao && item.descricao !== undefined)
+                campos.inputDescricao.value = item.descricao;
+            if (campos.inputValor && item.valor !== undefined)
+                campos.inputValor.value = item.valor;
+            if (campos.inputTipo && item.tipoDeCusto !== undefined) {
+                campos.inputTipo.value = item.tipoDeCusto;
+                campos.inputCategoria.disabled = false;
+            }
+
+            if (campos.inputCategoria && item.tipoMovimentacao !== undefined) {
+                campos.inputCategoria.value = item.tipoMovimentacao;
+            }
+            if (campos.inputDataCompetencia && item.dataCompetencia !== undefined)
+                campos.inputDataCompetencia.value = item.dataCompetencia;
+            if (campos.inputData && item.data !== undefined)
+                campos.inputData.value = item.data;
+            if (campos.inputTipoDeConta && item.contaBancaria !== undefined)
+                campos.inputTipoDeConta.value = item.contaBancaria;
+            if (campos.inputSituacao && item.situacao !== undefined)
+                campos.inputSituacao.value = item.situacao;
+            if (campos.inputDataVencimento && item.dataVencimento !== undefined)
+                campos.inputDataVencimento.value = item.dataVencimento;
+            if (campos.inputObservacao && item.observacao !== undefined)
+                campos.inputObservacao.value = item.observacao;
+        }
+
+        // Função para obter todos os IDs dos checkboxes selecionados
+        function deleteItensCaixa() {
+            // Coleta os IDs das checkboxes selecionadas usando o map, diretamente em um array
+            const idsSelecionados = $(".select-checkbox:checked")
+                .map(function () {
+                    return $(this).data("id");
+                })
+                .get(); // O .get() converte o resultado em um array simples
+
+            if (idsSelecionados.length === 0) {
+                // Exibe uma mensagem caso nenhuma checkbox tenha sido selecionada
+                mostrarAlerta("Nenhum item selecionado.", 0);
+                return;
+            }
+
+            // Chama a função para excluir os itens, passando os IDs selecionados
+            excluirItemCaixa(idsSelecionados);
+        }
+
+        function excluirItemCaixa(id) {
+            // Envia o array de IDs diretamente
+            const dlt = carregarAjax("excluirDadosBaseCaixa", id); // Passa o array diretamente, sem JSON.stringify
+            dlt.then((e) => {
+                if (e.situacao) {
+                    mostrarAlerta(e.mensagem, 1);
+                    carregardadosCaixa();
+                } else {
+                    mostrarAlerta(e.mensagem, 0);
+                }
+            });
+        }
+
+        // Função para criar e abrir o modal
+        function criarModal(titulo, conteudo, footer) {
+            // Cria o modal usando elementos HTML
+            const modal = document.createElement("div");
+            modal.classList.add("modal", "fade");
+            modal.id = "modalCaixa";
+            modal.setAttribute("tabindex", "-1");
+            modal.setAttribute("aria-hidden", "true");
+
+            // Define o conteúdo do modal
+            modal.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">${titulo}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ${conteudo}
+                </div>
+                <div class="modal-footer">
+                    ${footer}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+            // Adiciona o modal ao corpo do documento
+            document.body.appendChild(modal);
+
+            // Inicializa e mostra o modal usando o Bootstrap
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+
+            // Adiciona um evento para remover o modal do DOM quando ele é fechado
+            modal.addEventListener("hidden.bs.modal", () => {
+                modal.remove(); // Remove o modal do DOM
+            });
+
+            // Retorna o modal para possível manipulação adicional (se necessário)
+            return bootstrapModal;
+        }
+
+        // Função para carregar o modal com base no ID
+        async function carregarmodal(idModal) {
+            let titulo, conteudo, footer;
+            switch (idModal) {
+                case "modalCaixa":
+                    titulo = "Registro de Receita";
+                    conteudo = await loadTemplateForm(idModal);
+                    footer = `<i class="bi bi-caret-right"></i>`;
+                    await criarModal(titulo, conteudo, footer); // Aguarde a criação do modal antes de continuar
+                    await loadInputsCaixa(); // Agora carrega o conteúdo do <select> após o modal estar pronto
+                    break;
+                default:
+                    titulo = "Modal";
+                    conteudo = "Conteúdo padrão";
+                    break;
+            }
+        }
+
+        async function loadTemplateForm(d) {
+            let coporTexto;
+            if (d === "cardHeaderRC") {
+                coporTexto = `
+                                <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="inputIdCaixa" class="form-label">ID</label>
+                                <input type="text" name="idRCCaixa" class="form-control" id="inputIdCaixa"
+                                    disabled="disabled" placeholder="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                                <input type="text" name="descricao" class="form-control valid"
+                                    id="descricaoRegistroReceita" placeholder="Informe a descrição" />
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="valorRegistroReceita" class="form-label">Valor</label>
+                                <input type="text" name="valor" class="form-control valid" id="valorRegistroReceita"
+                                    oninput="transformaInputReal(this)" placeholder="R$ 0,00" step="0.01" min="0.01"
+                                    max="999999.99" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                                <select name="tipo" class="form-select valid" id="inputTipoRegistroReceita"
+                                    onchange="carregarCategoriasCaixa(this.value)">
+                                    <option value="" selected>Selecione o tipo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="inputCategoriaRegistroReceita" class="form-label ">Categoria</label>
+                                <select name="categoria" class="form-select valid" id="inputCategoriaRegistroReceita"
+                                    disabled="disabled">
+                                    <option value="" selected>Selecione a categoria</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroCompetencia" class="form-label">Data Compentencia</label>
+                                <input type="date" name="dataCompetencia" class="form-control valid"
+                                    id="dataRegistroCompetencia" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroReceita" class="form-label">Data</label>
+                                <input type="date" name="data" class="form-control valid" id="dataRegistroReceita" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
+                                    Bancária</label>
+                                <select name="contaBancaria" class="form-select valid"
+                                    id="tipoDeContaBancariaRegistroReceita">
+                                    <option value="" selected>
+                                        Selecione a conta bancária
+                                    </option>
+                                    <option value="Caixa">Caixa</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                                <select name="situacao" class="form-select valid" id="situacaoContaRegistroReceita">
+                                    <option value="" selected>Selecione a situação</option>
+                                    <option value="Concluido">Concluido</option>
+                                    <option value="Pendente">Pendente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dataVencimentoRegistroReceita" class="form-label">Data de Vencimento</label>
+                                <input type="date" name="dataVencimento" class="form-control"
+                                    id="dataVencimentoRegistroReceita" />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="observacoesRegistroReceita" class="form-label">Observações</label>
+                                    <textarea name="observacoes" class="form-control" id="observacoesRegistroReceita"
+                                        placeholder="Informe as observações"></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Salvar Registros
+                            </button>
+                    </form>
+            `;
+
+                document.getElementById("cardHeaderRC").innerHTML = coporTexto;
+            } else if (d === "modalCaixa") {
+                return (coporTexto = `
+                    <form id="formCaixa" onsubmit="salvarformRegistroCaixa(event)">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="inputIdCaixa" class="form-label">ID</label>
+                                <input type="text" name="idRCCaixa" class="form-control" id="inputIdCaixa"
+                                    disabled="disabled" placeholder="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="descricaoRegistroReceita" class="form-label">Descrição</label>
+                                <input type="text" name="descricao" class="form-control valid"
+                                    id="descricaoRegistroReceita" placeholder="Informe a descrição" />
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="valorRegistroReceita" class="form-label">Valor</label>
+                                <input type="text" name="valor" class="form-control valid" id="valorRegistroReceita"
+                                    oninput="transformaInputReal(this)" placeholder="R$ 0,00" step="0.01" min="0.01"
+                                    max="999999.99" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="inputTipoRegistroReceita" class="form-label">Tipo</label>
+                                <select name="tipo" class="form-select valid" id="inputTipoRegistroReceita"
+                                    onchange="carregarCategoriasCaixa(this.value)">
+                                    <option value="" selected>Selecione o tipo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="inputCategoriaRegistroReceita" class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select" id="inputCategoriaRegistroReceita"
+                                    disabled="disabled">
+                                    <option value="" selected>Selecione a categoria</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroCompetencia" class="form-label">Data Compentencia</label>
+                                <input type="date" name="dataCompetencia" class="form-control valid"
+                                    id="dataRegistroCompetencia" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dataRegistroReceita" class="form-label">Data</label>
+                                <input type="date" name="data" class="form-control valid" id="dataRegistroReceita" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipoDeContaBancariaRegistroReceita" class="form-label">Conta
+                                    Bancária</label>
+                                <select name="contaBancaria" class="form-select"
+                                    id="tipoDeContaBancariaRegistroReceita">
+                                    <option value="" selected>
+                                        Selecione a conta bancária
+                                    </option>
+                                    <option value="Caixa">Caixa</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="situacaoContaRegistroReceita" class="form-label">Situação da Conta</label>
+                                <select name="situacao" class="form-select valid" id="situacaoContaRegistroReceita">
+                                    <option value="" selected>Selecione a situação</option>
+                                    <option value="Concluido">Concluido</option>
+                                    <option value="Pendente">Pendente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dataVencimentoRegistroReceita" class="form-label">Data de Vencimento</label>
+                                <input type="date" name="dataVencimento" class="form-control"
+                                    id="dataVencimentoRegistroReceita" />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="observacoesRegistroReceita" class="form-label">Observações</label>
+                                    <textarea name="observacoes" class="form-control" id="observacoesRegistroReceita"
+                                        placeholder="Informe as observações"></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Salvar Registros
+                            </button>
+                    </form>
+            `);
+            }
+        }
+
+
+        async function loadInputsCaixa(categoria) {
+            try {
+                const inputTipo = document.getElementById("inputTipoRegistroReceita");
+                const uniqueTipos = new Set();
+                let response;
+
+                // Limpa as opções de seleção existentes para recarregar
+                inputTipo.innerHTML =
+                    '<option value="" selected>Selecione o tipo</option>';
+                if (categoria) {
+                    response = await carregarAjax("carregarTipoCategoria", categoria);
+                } else {
+                    response = await carregarAjax("carregarTipoCategoria");
+                }
+
+
+                if (response.situacao) {
+                    response.dado.forEach((element) => {
+                        if (!uniqueTipos.has(element.tipo)) {
+                            uniqueTipos.add(element.tipo);
+                            const optionTipo = document.createElement("option");
+                            optionTipo.text = element.tipo;
+                            optionTipo.value = element.tipo;
+                            inputTipo.add(optionTipo);
+                        }
+                    });
+                } else {
+                    console.log(response.mensagem);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar os dados:", error);
+            }
+        }
+        async function carregarCategoriasCaixa(tipoSelecionado) {
+            tipoSelecionado ? "" : (inputCategoriaRegistroReceita.disabled = true);
+            try {
+                // Obtenha o elemento do select onde as categorias serão adicionadas
+                let inputCategoria = document.getElementById(
+                    "inputCategoriaRegistroReceita"
+                );
+                let tiposCategorias = new Set(); // Usado para verificar categorias já adicionadas
+                inputCategoria.innerHTML = "";
+                // Limpa o select antes de carregar as novas opções
+                inputCategoria.innerHTML =
+                    '<option value="" selected>Selecione o tipo</option>';
+                // Carrega as categorias através do AJAX
+                const response = await carregarAjax("carregarTipoCategoria");
+
+                if (response.situacao) {
+                    response.dado.forEach((element) => {
+                        // Verifica se a categoria é do tipo selecionado (Entrada ou Saída)
+                        if (
+                            element.tipo === tipoSelecionado &&
+                            !tiposCategorias.has(element.categoria)
+                        ) {
+                            // Adiciona a categoria ao conjunto para evitar duplicados
+                            tiposCategorias.add(element.categoria);
+
+                            // Cria uma nova opção para o select e adiciona ao select
+                            let optionTipo = document.createElement("option");
+                            optionTipo.text = element.categoria;
+                            optionTipo.value = element.categoria;
+                            inputCategoria.appendChild(optionTipo);
+                            inputCategoriaRegistroReceita.disabled = false;
+                        }
+                    });
+                } else {
+                    console.log(response.mensagem);
+                }
+            } catch (error) {
+                console.log("Erro ao carregar dados:", error);
+            }
+        }
+        function adicionarOpcaoVazia(select) {
+            if (select) {
+                const option = document.createElement("option");
+                option.text = "Selecione";
+                option.value = "";
+                select.prepend(option); // Adiciona no início do select
+            } else {
+                console.error(
+                    "Elemento select não encontrado para adicionar opção vazia."
+                );
+            }
+        }
+
+
+        // Função de validação do formulário
+        function validarFormulario(elementos) {
+            let validacaoFalhou = false;
+
+            elementos.forEach((element) => {
+                if (element && element.classList.contains("valid")) {
+                    // Verifica se o elemento é válido
+                    if (!element.value || !element.value.trim()) {
+                        // Verifica se o valor está vazio ou apenas com espaços
+                        element.classList.add("is-invalid");
+                        element.classList.remove("is-valid");
+                        validacaoFalhou = true;
+                    } else {
+                        element.classList.remove("is-invalid");
+                        element.classList.add("is-valid");
+                    }
+                }
+            });
+
+            return !validacaoFalhou; // Retorna true se a validação passou, false se falhou
+        }
+    </script>
+    <script>
+        carregarPagina("template_login");
+    </script>
+</body>
+
+</html>

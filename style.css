@@ -33,10 +33,13 @@ div#conteudo {
     height: 5em;
     margin-bottom: 0.5rem;
 }
-img#bttExcluirC {
+img#bttExcluirC,img#bttEditar {
     width: 25px;
     height: 25px;
 }
+.is-invalid {
+    border-color: red;
+  }
 body {
     margin: 0;
     padding: 0;
@@ -215,7 +218,7 @@ div#meunoLateral {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    opacity: 5%;
+    opacity: 10%;
 }
 
 div#meunoLateral:hover {
